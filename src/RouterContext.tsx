@@ -2,17 +2,17 @@ import React, {createContext, useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import {RouteObject, Routes} from './definitions';
 
-export default function createRouterContext<R extends Record<string, RouteObject<any>>>() {
+export default function createRouterContext<R extends Record<string, RouteObject<any>>>(routes: R) {
     const RoutesContext = createContext<Routes<R> | undefined>(undefined);
 
-    function RoutesProvider(props: {value: R; children: any}) {
+    function RoutesProvider(props: {children: any}) {
         const history = useHistory();
-        let routes = {} as unknown as Routes<R>;
+        let value = {} as unknown as Routes<R>;
         let key: keyof Routes<R>;
-        for (key in props.value) {
-            routes[key] = props.value[key]._actionCreator(history);
+        for (key in routes) {
+            value[key] = routes[key]._actionCreator(history);
         }
-        return <RoutesContext.Provider value={routes}>{props.children}</RoutesContext.Provider>;
+        return <RoutesContext.Provider value={value}>{props.children}</RoutesContext.Provider>;
     }
 
     function useRoutes(): Routes<R> {

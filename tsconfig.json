@@ -1,5 +1,5 @@
 {
-    "include": ["src", "types"],
+    "include": ["src", "test", "types"],
     "compilerOptions": {
         "declaration": true,
         "downlevelIteration": true,

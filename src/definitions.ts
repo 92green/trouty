@@ -5,7 +5,7 @@ export type In<T> = (inData: string) => T;
 export type RouteObject<T> = {
     _type: T;
     _actionCreator: (history: History) => RouteMethods<T>;
-    route: React.ComponentType<{args: T}>;
+    route: React.ReactNode;
 };
 
 type RouteMethods<T> = {

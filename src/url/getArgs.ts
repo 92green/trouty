@@ -23,7 +23,7 @@ export default function getArgs<T extends Record<string, any>>(
             }
 
             case 'hash':
-                args[key] = parser.in(data.location.hash);
+                args[key] = parser.in(data.location.hash.slice(1));
                 break;
 
             case 'state':

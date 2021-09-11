@@ -1,5 +1,5 @@
 import React from 'react';
-import {Route as ReactRouterRoute, useHistory, useLocation, useParams} from 'react-router-dom';
+import {Route as ReactRouterRoute, useLocation, useParams} from 'react-router-dom';
 import generateUrlAndState from './url/generateUrlAndState';
 import {RouteObject, RouteConfig} from './definitions';
 import getArgs from './url/getArgs';
@@ -8,21 +8,21 @@ import {History} from 'history';
 export default function Route<T>(config: RouteConfig<T>): RouteObject<T> {
     const {path, component: Component} = config;
 
-    function route() {
+    function RouteNode() {
         const params = useParams<T>();
         const location = useLocation();
         const args = getArgs<T>(config, {params, location});
-        return (
-            <ReactRouterRoute path={path} exact>
-                <Component args={args} />
-            </ReactRouterRoute>
-        );
+        return <Component args={args} />;
     }
 
     const go = generateUrlAndState<T>(config);
 
     return {
-        route,
+        route: (
+            <ReactRouterRoute exact path={path}>
+                <RouteNode />
+            </ReactRouterRoute>
+        ),
         // @ts-ignore - this is a dummy type to pass around for context
         _type: null,
         _actionCreator: (history: History) => ({

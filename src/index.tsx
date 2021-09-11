@@ -17,35 +17,19 @@
 export {default as Route} from './Route';
 export {default as createRouterContext} from './RouterContext';
 export {default as Parse} from './Parse';
+export {Param, Hash, Query, State} from './Parse';
 export {BrowserRouter} from 'react-router-dom';
+export {Router} from 'react-router-dom';
 export {MemoryRouter} from 'react-router-dom';
 export {Link} from 'react-router-dom';
+export {Switch} from 'react-router-dom';
 
-//
-// Context
+/*
+@todo
 
-//import {Route, Hash, Param, Query, Link} from 'trouty';
+- Matching path and params
+- Complain about multiple hash parsers
+- Throw on missing data
+- Allow defaults
 
-//const a = Route<{foo: number}>({
-//path: '/user/:id',
-//parse: {},
-//component: function UserItem(props) {
-//const routes = useRoutes();
-//return <Link to={routes.b.to({})}> Go to b</Link>;
-//}
-//});
-
-//const b = Route<{bar: string}>({
-//path: '/user/:id',
-//parse: {},
-//component: function UserItem(props) {
-//const routes = useRoutes();
-//return <Link to={routes.a.to({})}> Go to a</Link>;
-//}
-//});
-
-//// probably in another file
-//const {RoutesProvider, useRoutes} = createRouterContext({
-//a,
-//b
-//});
+*/
