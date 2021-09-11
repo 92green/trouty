@@ -1,5 +1,3 @@
-import invariant from 'tiny-invariant';
-
 type ParseType =
     | 'param'
     | 'queryString'
@@ -51,7 +49,7 @@ export default class Parse<T> {
     }
 
     default(value: T) {
-        invariant(!this._required, 'A parser cannot be required and have a default value');
+        if (this._required) throw new Error('A parser cannot be required and have a default value');
         this._default = value;
         return this;
     }

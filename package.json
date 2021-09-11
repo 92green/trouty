@@ -1,79 +1,69 @@
 {
-    "name": "trouty",
-    "author": "Allan Hortle",
-    "module": "dist/trouty.esm.js",
-    "version": "0.1.1",
-    "license": "MIT",
-    "main": "dist/index.js",
-    "typings": "dist/index.d.ts",
-    "files": [
-        "dist",
-        "src"
-    ],
-    "engines": {
-        "node": ">=10"
-    },
-    "scripts": {
-        "start": "tsdx watch",
-        "build": "tsdx build",
-        "test": "tsdx test --passWithNoTests",
-        "lint": "tsdx lint",
-        "prepare": "tsdx build",
-        "size": "size-limit",
-        "analyze": "size-limit --why"
-    },
-    "peerDependencies": {
-        "react": ">=16"
-    },
-    "husky": {
-        "hooks": {
-            "pre-commit": "tsdx lint && yarn pretty-quick --staged"
-        }
-    },
-    "prettier": {
-        "printWidth": 100,
-        "trailingComma": "none",
-        "tabWidth": 4,
-        "semi": true,
-        "singleQuote": true,
-        "bracketSpacing": false
-    },
-    "size-limit": [
-        {
-            "path": "dist/trouty.cjs.production.min.js",
-            "limit": "10 KB"
-        },
-        {
-            "path": "dist/trouty.esm.js",
-            "limit": "10 KB"
-        }
-    ],
-    "devDependencies": {
-        "@size-limit/preset-small-lib": "^5.0.3",
-        "@testing-library/jest-dom": "^5.14.1",
-        "@testing-library/react": "^12.0.0",
-        "@types/react": "^17.0.19",
-        "@types/react-dom": "^17.0.9",
-        "@types/react-router-dom": "^5.1.8",
-        "@typescript-eslint/eslint-plugin": "^4.31.0",
-        "@typescript-eslint/parser": "^4.31.0",
-        "husky": "^7.0.2",
-        "prettier": "^2.4.0",
-        "pretty-quick": "^3.1.1",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
-        "size-limit": "^5.0.3",
-        "tsdx": "^0.14.1",
-        "tslib": "^2.3.1",
-        "typescript": "^4.4.2"
-    },
-    "dependencies": {
-        "react-router-dom": "^5.2.1",
-        "tiny-invariant": "^1.1.0"
-    },
-    "resolutions": {
-        "**/typescript": "^4.4.2",
-        "**/@typescript-eslint/eslint-plugin": "^4.31.0",
-        "**/@typescript-eslint/parser": "^4.31.0"
+  "name": "trouty",
+  "author": "Allan Hortle",
+  "module": "dist/trouty.esm.js",
+  "version": "0.1.1",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "tsdx lint",
+    "prepare": "tsdx build",
+    "size": "size-limit",
+    "analyze": "size-limit --why"
+  },
+  "peerDependencies": {
+    "react": ">=16"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint && yarn pretty-quick --staged"
     }
+  },
+  "size-limit": [
+    {
+      "path": "dist/trouty.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/trouty.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "devDependencies": {
+    "@size-limit/preset-small-lib": "^5.0.3",
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.0.0",
+    "@types/react": "^17.0.19",
+    "@types/react-dom": "^17.0.9",
+    "@types/react-router-dom": "^5.1.8",
+    "@typescript-eslint/eslint-plugin": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.0",
+    "husky": "^7.0.2",
+    "prettier": "^2.4.0",
+    "pretty-quick": "^3.1.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "size-limit": "^5.0.3",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.2"
+  },
+  "dependencies": {
+    "react-router-dom": "^5.2.1"
+  },
+  "resolutions": {
+    "**/typescript": "^4.4.2",
+    "**/@typescript-eslint/eslint-plugin": "^4.31.0",
+    "**/@typescript-eslint/parser": "^4.31.0"
+  }
 }
