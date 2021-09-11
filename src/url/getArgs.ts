@@ -12,25 +12,27 @@ export default function getArgs<T extends Record<string, any>>(
     for (key in parse) {
         const parser = parse[key];
 
-        switch (parser.type) {
-            case 'query':
-                args[key] = parser.in(searchParams.get(key) || '');
+        switch (parser._type) {
+            case 'queryJSON':
+            case 'queryNumber':
+            case 'queryString':
+                args[key] = parser.in(key, searchParams.get(key) || '');
                 break;
 
             case 'param': {
-                args[key] = data.params[key];
+                args[key] = parser.in(key, data.params[key]);
                 break;
             }
 
-            case 'hash':
-                args[key] = parser.in(data.location.hash.slice(1));
+            case 'hashString':
+            case 'hashNumber':
+            case 'hashJSON':
+                args[key] = parser.in(key, data.location.hash.slice(1));
                 break;
 
             case 'state':
-                args[key] = data.location.state[key];
+                args[key] = parser.in(key, data.location.state?.[key]);
                 break;
-            default:
-                throw new Error(`Parser for ${key} not found`);
         }
     }
 

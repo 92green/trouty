@@ -17,7 +17,6 @@
 export {default as Route} from './Route';
 export {default as createRouterContext} from './RouterContext';
 export {default as Parse} from './Parse';
-export {Param, Hash, Query, State} from './Parse';
 export {BrowserRouter} from 'react-router-dom';
 export {Router} from 'react-router-dom';
 export {MemoryRouter} from 'react-router-dom';

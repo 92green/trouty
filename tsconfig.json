@@ -1,5 +1,5 @@
 {
-    "include": ["src", "test", "types"],
+    "include": ["src", "types"],
     "compilerOptions": {
         "declaration": true,
         "downlevelIteration": true,
@@ -19,6 +19,7 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "strict": true,
-        "strictNullChecks": true
+        "strictNullChecks": true,
+        "target": "ES5"
     }
 }

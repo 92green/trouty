@@ -1,4 +1,5 @@
 import {History} from 'history';
+import Parse from './Parse';
 export type Out<T> = (outData: T) => string;
 export type In<T> = (inData: string) => T;
 
@@ -19,17 +20,10 @@ export type Routes<R extends Record<string, RouteObject<any>>> = {
     [K in keyof R]: RouteMethods<R[K]['_type']>;
 };
 
-type Param = {type: 'param'};
-type Query<V> = {type: 'query'; in: In<V>; out: Out<V>};
-type Hash<V> = {type: 'hash'; in: In<V>; out: Out<V>};
-type State = {type: 'state'};
-
-export type Parser<T> = Param | Query<T> | Hash<T> | State;
-
 export type RouteConfig<T> = {
     path: string;
     parse: {
-        [K in keyof T]: Parser<T[K]>;
+        [K in keyof T]: Parse<T[K]>;
     };
     component: React.ComponentType<{args: T}>;
 };

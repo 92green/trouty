@@ -1,14 +1,14 @@
 import React from 'react';
 import {render, screen, fireEvent} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {Router, Switch, Route, createRouterContext, Param, Query} from '../src/index';
+import {Router, Switch, Route, createRouterContext, Parse} from '../src/index';
 import {createMemoryHistory, History} from 'history';
 
 const foo = Route<{id: string; search: string}>({
     path: '/foo/:id',
     parse: {
-        id: Param,
-        search: Query.string
+        id: Parse.param,
+        search: Parse.queryString
     },
     component: function Foo(props) {
         const routes = useRoutes();
@@ -29,8 +29,8 @@ const foo = Route<{id: string; search: string}>({
 const bar = Route<{id: string; search: string}>({
     path: '/bar/:id',
     parse: {
-        id: Param,
-        search: Query.string
+        id: Parse.param,
+        search: Parse.queryString
     },
     component: function Bar() {
         return <div>Bar Route</div>;
@@ -73,11 +73,6 @@ describe('args', () => {
     it.todo('applies default parameters');
 });
 
-describe('parsing', () => {
-    it('parses the query string', () => {});
-    it('parses the hash', () => {});
-});
-
 describe('navigation', () => {
     it('returns the next route from to and href', () => {
         renderRoute('/foo/123?search=orange');
@@ -92,6 +87,7 @@ describe('navigation', () => {
         expect(history.location.search).toBe('?search=b');
         expect(history.index).toBe(1);
     });
+
     it('will replace state', () => {
         const history = createMemoryHistory({initialEntries: ['/foo/123']});
         renderRoute(history);
@@ -100,4 +96,12 @@ describe('navigation', () => {
         expect(history.location.search).toBe('?search=b');
         expect(history.index).toBe(0);
     });
+});
+
+it('will throw if useContext is used outside of a provider', () => {
+    function BadComponent() {
+        useRoutes();
+        return null;
+    }
+    expect(() => render(<BadComponent />)).toThrowError('RouterContext used before it exists');
 });

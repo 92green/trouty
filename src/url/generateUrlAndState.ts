@@ -12,9 +12,27 @@ export default function generateUrlAndState<T extends Record<string, any>>(
         let key: keyof T;
         for (key in config.parse) {
             const parser = config.parse[key];
-            if (parser.type === 'query') queryData[key] = parser.out(args[key]);
-            if (parser.type === 'state') state[key] = args[key];
-            if (parser.type === 'hash') hash = parser.out(args[key]);
+            const outData = parser.out(args[key]);
+            switch (parser._type) {
+                case 'queryJSON':
+                case 'queryNumber':
+                case 'queryString':
+                    queryData[key] = outData;
+                    break;
+
+                case 'hashString':
+                case 'hashNumber':
+                case 'hashJSON':
+                    hash = outData;
+                    break;
+
+                case 'state':
+                    state[key] = outData;
+                    break;
+
+                case 'param':
+                    break;
+            }
         }
         const search = new URLSearchParams(queryData as Record<string, string>).toString();
         if (search) url += `?${search}`;
