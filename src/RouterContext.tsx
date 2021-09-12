@@ -5,6 +5,12 @@ import {RouteObject, Routes} from './definitions';
 export default function createRouterContext<R extends Record<string, RouteObject<any>>>(routes: R) {
     const RoutesContext = createContext<Routes<R> | undefined>(undefined);
 
+    const routeComponents = {} as unknown as Record<keyof R, React.ReactNode>;
+    let key: keyof Routes<R>;
+    for (key in routes) {
+        routeComponents[key] = routes[key].route;
+    }
+
     function RoutesProvider(props: {children: any}) {
         const history = useHistory();
         let value = {} as unknown as Routes<R>;
@@ -21,5 +27,5 @@ export default function createRouterContext<R extends Record<string, RouteObject
         return routes;
     }
 
-    return {useRoutes, RoutesProvider};
+    return {useRoutes, RoutesProvider, routes: routeComponents};
 }

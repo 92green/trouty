@@ -19,7 +19,7 @@ export default function Route<T>(config: RouteConfig<T>): RouteObject<T> {
 
     return {
         route: (
-            <ReactRouterRoute exact path={path}>
+            <ReactRouterRoute exact path={path} key={path}>
                 <RouteNode />
             </ReactRouterRoute>
         ),

@@ -98,10 +98,15 @@ describe('navigation', () => {
     });
 });
 
-it('will throw if useContext is used outside of a provider', () => {
-    function BadComponent() {
-        useRoutes();
-        return null;
-    }
-    expect(() => render(<BadComponent />)).toThrowError('RouterContext used before it exists');
+describe('errors', () => {
+    beforeEach(() => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
+    });
+    it('will throw if useContext is used outside of a provider', () => {
+        function BadComponent() {
+            useRoutes();
+            return null;
+        }
+        expect(() => render(<BadComponent />)).toThrowError('RouterContext used before it exists');
+    });
 });
