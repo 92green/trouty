@@ -1,7 +1,7 @@
 import React from 'react';
 import {render, screen, fireEvent} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {Router, Switch, Route, createRouterContext, Parse} from '../src/index';
+import {Router, Switch, Route, createRouterContext, Parse} from '../index';
 import {createMemoryHistory, History} from 'history';
 
 const foo = Route<{id: string; search: string}>({

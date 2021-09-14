@@ -1,13 +1,13 @@
 import React from 'react';
 import {render, screen, fireEvent} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {Router, Switch, Route, createRouterContext, Parse} from '../src/index';
+import {Router, Switch, Route, createRouterContext, Parse} from '../index';
+import {RouteConfig} from '../definitions';
 import {createMemoryHistory} from 'history';
 
-function createRoute<T>(name: string, path: string, parse: any, to: any) {
+function createRoute<T>(name: string, config: Omit<RouteConfig<T>, 'component'>, to: any) {
     return Route<T>({
-        path,
-        parse,
+        ...config,
         component: (props) => {
             const routes = useRoutes() as any;
             return (
@@ -20,81 +20,85 @@ function createRoute<T>(name: string, path: string, parse: any, to: any) {
         }
     });
 }
+
+const a = Route<{a?: string; b: number}>({
+    path: '/foo',
+    parse: {
+        a: Parse.queryString,
+        b: Parse.queryNumber.optional.fallback(0)
+    },
+    component: () => {
+        return null;
+    }
+});
+
 const getArgs = () => JSON.parse(screen.getByTitle('value').textContent || '{}');
 
-const params = createRoute<{a: string}>(
+const params = createRoute<{a: string; b: string}>(
     'params',
-    '/params/:a/:b',
-    {a: Parse.param, b: Parse.param},
+    {path: '/params/:a/:b', parse: {a: Parse.param, b: Parse.param}},
     {a: 'bar', b: 'foo'}
 );
 
-const queryString = createRoute<{a: string}>(
+const queryString = createRoute<{a: string; b: number; c: string[]}>(
     'queryString',
-    '/queryString',
-    {a: Parse.queryString, b: Parse.queryNumber, c: Parse.queryJSON},
+    {path: '/queryString', parse: {a: Parse.queryString, b: Parse.queryNumber, c: Parse.queryJSON}},
     {a: 'bar', b: 5, c: ['zzz']}
 );
 const hashJson = createRoute<{a: string[]}>(
     'hashJson',
-    '/hashJson',
-    {a: Parse.hashJSON},
+    {path: '/hashJson', parse: {a: Parse.hashJSON}},
     {a: ['bar']}
 );
 const hashNumber = createRoute<{a: number}>(
     'hashNumber',
-    '/hashNumber',
-    {a: Parse.hashNumber},
+    {path: '/hashNumber', parse: {a: Parse.hashNumber}},
     {a: 5}
 );
 const hashString = createRoute<{a: string}>(
     'hashString',
-    '/hashString',
-    {a: Parse.hashString},
+    {path: '/hashString', parse: {a: Parse.hashString}},
     {a: 'bar'}
 );
 
-const required = createRoute<{a: string}>(
-    'required',
-    '/required',
+const optional = createRoute<{a?: string; b?: string; c?: string}>(
+    'optional',
     {
-        required: Parse.queryString.required,
-        requiredHash: Parse.hashString.required,
-        param: Parse.param.required
+        path: '/optional',
+        parse: {
+            a: Parse.queryString.optional.fallback('query'),
+            b: Parse.hashString.optional.fallback('hash'),
+            c: Parse.param.optional.fallback('param')
+        }
     },
     {required: 'foo'}
 );
 
-const requiredState = createRoute<{a: string[]}>(
-    'requiredState',
-    '/requiredState',
+const optionalState = createRoute<{a?: string[]}>(
+    'optionalState',
     {
-        a: Parse.state.required
+        path: '/optionalState',
+        parse: {
+            a: Parse.state.optional.fallback('state')
+        }
     },
     {}
 );
 
-const defaults = createRoute<{a?: string; b?: string[]}>(
-    'defaults',
-    '/defaults',
-    {
-        a: Parse.queryString.default('foo'),
-        b: Parse.state.default(['bar'])
-    },
-    {}
+const state = createRoute<{a: string[]}>(
+    'state',
+    {path: '/state', parse: {a: Parse.state}},
+    {a: ['bar']}
 );
 
-const state = createRoute<{a: string[]}>('state', '/state', {a: Parse.state}, {a: ['bar']});
-
-const {RoutesProvider, useRoutes} = createRouterContext({
-    defaults,
+const {RoutesProvider, useRoutes, routes} = createRouterContext({
     hashJson,
     hashNumber,
     hashString,
     params,
     queryString,
-    required,
-    requiredState,
+    optional,
+    optionalState,
     state
 });
 
@@ -102,16 +106,7 @@ function renderRoute(pathOrHistory: string) {
     return render(
         <Router history={createMemoryHistory({initialEntries: [pathOrHistory]})}>
             <RoutesProvider>
-                <Switch>
-                    {defaults.route}
-                    {hashJson.route}
-                    {hashNumber.route}
-                    {hashString.route}
-                    {params.route}
-                    {queryString.route}
-                    {required.route}
-                    {requiredState.route}
-                </Switch>
+                <Switch>{Object.values(routes)}</Switch>
             </RoutesProvider>
         </Router>
     );
@@ -199,15 +194,5 @@ describe('modifiers', () => {
         expect(args.a).toEqual('foo');
         expect(args.b).toEqual(['bar']);
         expect(screen.getByTitle('to').textContent).toBe('/defaults?a=foo');
-    });
-
-    it('will throw if default and required are set', () => {
-        expect(() =>
-            Route({
-                path: '/',
-                parse: {a: Parse.queryString.required.default('foo')},
-                component: () => null
-            })
-        ).toThrow();
     });
 });

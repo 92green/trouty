@@ -1,7 +1,7 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {MemoryRouter, Switch} from '../src/index';
+import {MemoryRouter, Switch} from '../index';
 import {RoutesProvider, routes} from './circular/Router';
 
 describe('circular structure', () => {
