@@ -56,14 +56,14 @@ const hashString = createRoute<{a: string}>(
 const optional = createRoute<{a?: string; b?: string; c?: string}>(
     'optional',
     {
-        path: '/optional',
+        path: '/optional/:c?',
         parse: {
             a: Parse.query.string.optional('query'),
             b: Parse.hash.string.optional('hash'),
             c: Parse.param.string.optional('param')
         }
     },
-    {required: 'foo'}
+    {}
 );
 
 const optionalState = createRoute<{a?: string[]}>(
@@ -77,9 +77,12 @@ const optionalState = createRoute<{a?: string[]}>(
     {}
 );
 
-const state = createRoute<{a: string[]}>(
+const state = createRoute<{a: string[]; b?: string}>(
     'state',
-    {path: '/state', parse: {a: Parse.state.optional(undefined)}},
+    {
+        path: '/state',
+        parse: {a: Parse.state.optional(['bar']), b: Parse.state.optional(undefined)}
+    },
     {a: ['bar']}
 );
 
@@ -113,22 +116,22 @@ describe('parsing', () => {
         expect(screen.getByTitle('to').textContent).toBe('/params/bar/foo');
     });
 
-    it('parses the query.string', () => {
-        renderRoute('/query.string?a=foo&b=2&c=%5B%22foo%22%5D');
+    it('parses the queryString', () => {
+        renderRoute('/queryString?a=foo&b=2&c=%5B%22foo%22%5D');
         const args = JSON.parse(screen.getByTitle('value').textContent || '{}');
         expect(args.a).toBe('foo');
         expect(args.b).toBe(2);
         expect(args.c).toEqual(['foo']);
         expect(screen.getByTitle('to').textContent).toBe(
-            '/query.string?a=bar&b=5&c=%5B%22zzz%22%5D'
+            '/queryString?a=bar&b=5&c=%5B%22zzz%22%5D'
         );
     });
 
     it('parses the hash string', () => {
-        renderRoute('/hash.string#foo');
+        renderRoute('/hashString#foo');
         const args = getArgs();
         expect(args.a).toBe('foo');
-        expect(screen.getByTitle('to').textContent).toBe('/hash.string#bar');
+        expect(screen.getByTitle('to').textContent).toBe('/hashString#bar');
     });
 
     it('parses the hash number', () => {
@@ -138,7 +141,7 @@ describe('parsing', () => {
         expect(screen.getByTitle('to').textContent).toBe('/hashNumber#5');
     });
 
-    it.only('parses the hash json', () => {
+    it('parses the hash json', () => {
         renderRoute('/hashJson#%5B%22foo%22%5D');
         const args = getArgs();
         expect(args.a).toEqual(['foo']);
@@ -146,7 +149,7 @@ describe('parsing', () => {
     });
 
     it('parses the state', () => {
-        const history = createMemoryHistory({initialEntries: ['/state']});
+        const history = createMemoryHistory({initialEntries: []});
         history.push('/state', {a: ['foo']});
         render(
             <Router history={history}>
@@ -154,7 +157,6 @@ describe('parsing', () => {
             </Router>
         );
 
-        renderRoute('/state');
         const args = getArgs();
         expect(args.a).toEqual(['foo']);
         fireEvent.click(screen.getByTitle('link'));
@@ -168,25 +170,33 @@ describe('modifiers', () => {
     });
 
     it('will throw if required args are missing', () => {
-        expect(() => renderRoute('/required')).toThrowError();
+        expect(() => renderRoute('/queryString')).toThrowError();
     });
 
-    it('will throw if required state args are missing', () => {
-        expect(() => renderRoute('/requiredState')).toThrowError(
-            /a is not optional but was undefined/
-        );
-    });
-
-    it('will not throw if other props are missing', () => {
-        expect(() => renderRoute('/query.string')).not.toThrow();
-        expect(() => renderRoute('/hashJson')).not.toThrow();
-    });
-
-    it('will set default value if missing', () => {
-        renderRoute('/defaults');
+    it('return fallback if optional fallback is provided', () => {
+        renderRoute('/optional');
         const args = getArgs();
-        expect(args.a).toEqual('foo');
-        expect(args.b).toEqual(['bar']);
-        expect(screen.getByTitle('to').textContent).toBe('/defaults?a=foo');
+        expect(args.a).toBe('query');
+        expect(args.b).toBe('hash');
+        expect(args.c).toBe('param');
+    });
+
+    it('return undefined for optional things', () => {
+        const history = createMemoryHistory({initialEntries: ['/state']});
+        render(
+            <Router history={history}>
+                <RoutesProvider>{state.route}</RoutesProvider>
+            </Router>
+        );
+
+        const args = getArgs();
+        expect(args.b).toBe(undefined);
+        fireEvent.click(screen.getByTitle('link'));
+        expect(history.location.state).toEqual({a: ['bar'], b: undefined});
+    });
+
+    it('will apply default args to next transition', () => {
+        renderRoute('/optional');
+        expect(screen.getByTitle('to').textContent).toBe('/optional/param?a=query#hash');
     });
 });

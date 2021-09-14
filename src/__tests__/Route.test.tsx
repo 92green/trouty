@@ -4,15 +4,14 @@ import '@testing-library/jest-dom';
 import {Router, Switch, Route, createRouterContext, Parse} from '../index';
 import {createMemoryHistory, History} from 'history';
 
-const foo = Route<{id: string; search: string}>({
+const foo = Route<{id: string; search?: string}>({
     path: '/foo/:id',
     parse: {
-        id: Parse.param.string.optional(),
+        id: Parse.param.string,
         search: Parse.query.string.optional()
     },
     component: function Foo(props) {
         const routes = useRoutes();
-        console.log(props);
         return (
             <div>
                 <div title="name">Foo Route</div>
@@ -27,10 +26,10 @@ const foo = Route<{id: string; search: string}>({
     }
 });
 
-const bar = Route<{id: string; search: string}>({
+const bar = Route<{id: string; search?: string}>({
     path: '/bar/:id',
     parse: {
-        id: Parse.param.string.optional(),
+        id: Parse.param.string,
         search: Parse.query.string.optional()
     },
     component: function Bar() {

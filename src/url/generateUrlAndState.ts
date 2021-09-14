@@ -5,9 +5,9 @@ export default function generateUrlAndState<T extends Record<string, any>>(
     config: RouteConfig<any>
 ) {
     return (args: T): [string, Partial<T>] => {
-        let url = generatePath(config.path, args);
         let hash = '';
         const queryData: Partial<Record<keyof T, string>> = {};
+        const paramData: Partial<Record<keyof T, string>> = {};
         const state: Partial<T> = {};
         let key: keyof T;
         for (key in config.parse) {
@@ -23,9 +23,11 @@ export default function generateUrlAndState<T extends Record<string, any>>(
                         break;
 
                     case 'JSON':
-                        outData = JSON.stringify(
-                            parser.source === 'hash' ? encodeURIComponent(args[key]) : args[key]
-                        );
+                        const stringified = JSON.stringify(args[key]);
+                        outData =
+                            parser.source === 'hash'
+                                ? encodeURIComponent(stringified)
+                                : stringified;
                         break;
 
                     case 'string':
@@ -49,10 +51,12 @@ export default function generateUrlAndState<T extends Record<string, any>>(
                     break;
 
                 case 'param':
+                    paramData[key] = outData;
                     break;
             }
         }
         const search = new URLSearchParams(queryData as Record<string, string>).toString();
+        let url = generatePath(config.path, paramData);
         if (search) url += `?${search}`;
         if (hash) url += `#${hash}`;
         return [url, state];

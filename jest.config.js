@@ -9,5 +9,5 @@ module.exports = {
     collectCoverage: true,
     collectCoverageFrom: ['<rootDir>/src/**/*.{ts,tsx}'],
     coverageReporters: ['json-summary', 'text-summary', 'lcov'],
-    coveragePathIgnorePatterns: ['/node_modules/', 'index.ts']
+    coveragePathIgnorePatterns: ['/node_modules/', 'index.ts', '/__tests__/']
 };

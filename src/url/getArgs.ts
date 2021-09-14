@@ -38,7 +38,7 @@ export default function getArgs<T extends Record<string, any>>(
                 args[key] = parser._fallback || value;
             } else {
                 throw new Error(
-                    `${config.path}(${key}) - ${parser.source}:${parser.kind} is not optional but was undefined`
+                    `${config.path} args.${key} is not optional but was undefined [${parser.source}:${parser.kind}]`
                 );
             }
         } else {
