@@ -2,104 +2,122 @@ type ParseType =
     | 'param'
     | 'queryString'
     | 'queryNumber'
+    | 'queryBoolean'
     | 'queryJSON'
     | 'hashString'
     | 'hashNumber'
+    | 'hashBoolean'
     | 'hashJSON'
     | 'state'
     | 'hash';
 
 export default class Parse<T> {
     _type: ParseType;
-    _default?: T;
-    _required: boolean;
+    _fallback?: T;
+    _optional: boolean;
 
     constructor(type: ParseType) {
         this._type = type;
-        this._required = false;
+        this._optional = false;
     }
     static get param() {
-        return new Parse<string>('param');
+        return new ParseString('param');
     }
     static get queryString() {
-        return new Parse<string>('queryString');
+        return new ParseString('queryString');
     }
     static get queryNumber() {
-        return new Parse<number>('queryNumber');
+        return new ParseNumber('queryNumber');
+    }
+    static get queryBoolean() {
+        return new ParseBoolean('queryBoolean');
     }
     static get queryJSON() {
-        return new Parse<any>('queryJSON');
+        return new ParseJSON('queryJSON');
     }
     static get hashString() {
-        return new Parse<string>('hashString');
+        return new ParseString('hashString');
     }
     static get hashNumber() {
-        return new Parse<number>('hashNumber');
+        return new ParseNumber('hashNumber');
+    }
+    static get hashBoolean() {
+        return new ParseBoolean('hashBoolean');
     }
     static get hashJSON() {
-        return new Parse<any>('hashJSON');
+        return new ParseJSON('hashJSON');
     }
     static get state() {
-        return new Parse<any>('state');
+        return new ParseState('state');
     }
 
-    get required() {
-        this._required = true;
+    get optional(): Parse<T | undefined> {
+        this._optional = true;
         return this;
     }
 
-    default(value: T) {
-        if (this._required) throw new Error('A parser cannot be required and have a default value');
-        this._default = value;
-        return this;
+    fallback(fallback: NonNullable<T>) {
+        this._fallback = fallback;
+        return this as unknown as Parse<NonNullable<T>>;
     }
 
-    in(key: string, x: any) {
-        const missingError = new Error(`${key} is required but was ${x}`);
-        // Handle State first as it's the only non-stringy type
-        if (this._type === 'state') {
-            if (x === undefined) {
-                if (this._required) throw missingError;
-                return this._default;
-            }
-            return x;
+    getFallback(key: string, x: any) {
+        if (x === undefined) {
+            if (this._optional) return this._fallback ?? x;
+            throw new Error(`${key} is required but was ${x}`);
         }
-
-        if (x === '') {
-            if (this._required) throw missingError;
-            if (this._default) return this._default;
-        }
-        switch (this._type) {
-            case 'queryNumber':
-            case 'hashNumber':
-                return Number(x);
-
-            case 'queryJSON':
-                return JSON.parse(x || '{}');
-
-            case 'hashJSON':
-                return JSON.parse(decodeURIComponent(x) || '{}');
-
-            default:
-                return x;
-        }
+        return x;
     }
+}
 
-    out(x: any) {
-        if (x == null && this._default) return this._default;
-        switch (this._type) {
-            case 'queryNumber':
-            case 'hashNumber':
-                return x.toString();
+class ParseNumber extends Parse<number> {
+    in(key: string, x: string | undefined): number | undefined {
+        this.getFallback(key, x);
+        return Number(x);
+    }
+    out(x: number): string {
+        return x.toString();
+    }
+}
 
-            case 'queryJSON':
-                return JSON.stringify(x);
+class ParseString extends Parse<string> {
+    in(key: string, x: string): string {
+        this.getFallback(key, x);
+        return x;
+    }
+    out(x: string): string {
+        return x;
+    }
+}
 
-            case 'hashJSON':
-                return encodeURIComponent(JSON.stringify(x));
+class ParseBoolean extends Parse<boolean> {
+    in(key: string, x: string): boolean | undefined {
+        this.getFallback(key, x);
+        return Boolean(x);
+    }
+    out(x: boolean): string {
+        return x.toString();
+    }
+}
+class ParseJSON extends Parse<any> {
+    in(key: string, x: string): any {
+        this.getFallback(key, x);
+        return JSON.parse(decodeURIComponent(x) || '{}');
+    }
+    out(x: any): string {
+        if (x === undefined && this._fallback) return this._fallback;
+        if (this._type === 'hashJSON') return encodeURIComponent(JSON.stringify(x));
+        return JSON.stringify(x);
+    }
+}
 
-            default:
-                return x;
-        }
+class ParseState extends Parse<any> {
+    in(key: string, x: any): any {
+        this.getFallback(key, x);
+        return x;
+    }
+    out(x: any): any {
+        if (x === undefined && this._fallback) return this._fallback;
+        return x;
     }
 }
