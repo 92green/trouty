@@ -20,10 +20,10 @@ export type Routes<R extends Record<string, RouteObject<any>>> = {
     [K in keyof R]: RouteMethods<R[K]['_type']>;
 };
 
-export type RouteConfig<T> = {
+export type RouteConfig<T extends Record<string, any>> = {
     path: string;
     parse: {
-        [K in keyof T]: Parse<T[K]>;
+        [K in keyof T]-?: {} extends Pick<T, K> ? Parse<T[K] | undefined> : Parse<T[K]>;
     };
     component: React.ComponentType<{args: T}>;
 };

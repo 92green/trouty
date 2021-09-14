@@ -1,8 +1,9 @@
 import {RouteConfig} from '../definitions';
+import {Location} from 'history';
 
 export default function getArgs<T extends Record<string, any>>(
     config: RouteConfig<T>,
-    data: {params: T; location: any}
+    data: {params: T; location: Location<any>}
 ): T {
     const {parse} = config;
     let args = {} as unknown as T;
@@ -16,7 +17,7 @@ export default function getArgs<T extends Record<string, any>>(
             case 'queryJSON':
             case 'queryNumber':
             case 'queryString':
-                args[key] = parser.in(key, searchParams.get(key) || '');
+                args[key] = parser.in(key, searchParams.get(key));
                 break;
 
             case 'param': {
