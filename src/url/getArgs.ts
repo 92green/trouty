@@ -13,27 +13,51 @@ export default function getArgs<T extends Record<string, any>>(
     for (key in parse) {
         const parser = parse[key];
 
-        switch (parser._type) {
-            case 'queryJSON':
-            case 'queryNumber':
-            case 'queryString':
-                args[key] = parser.in(key, searchParams.get(key));
+        let value;
+        switch (parser.source) {
+            case 'query':
+                value = searchParams.get(key) || undefined;
                 break;
 
             case 'param': {
-                args[key] = parser.in(key, data.params[key]);
+                value = data.params[key];
                 break;
             }
 
-            case 'hashString':
-            case 'hashNumber':
-            case 'hashJSON':
-                args[key] = parser.in(key, data.location.hash.slice(1));
+            case 'hash':
+                value = data.location.hash.slice(1) || undefined;
                 break;
 
             case 'state':
-                args[key] = parser.in(key, data.location.state?.[key]);
+                value = data.location.state?.[key];
                 break;
+        }
+
+        if (value === undefined) {
+            if (parser._optional) {
+                args[key] = parser._fallback || value;
+            } else {
+                throw new Error(
+                    `${config.path}(${key}) - ${parser.source}:${parser.kind} is not optional but was undefined`
+                );
+            }
+        } else {
+            switch (parser.kind) {
+                case 'number':
+                    args[key] = Number(value) as any;
+                    break;
+
+                case 'JSON':
+                    args[key] = JSON.parse(
+                        parser.source === 'hash' ? decodeURIComponent(value) : value
+                    );
+                    break;
+
+                case 'string':
+                case 'transparent':
+                    args[key] = value;
+                    break;
+            }
         }
     }
 

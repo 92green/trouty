@@ -2,12 +2,11 @@ import React from 'react';
 import {Route, Parse} from '../../index';
 import {useRoutes} from './Router';
 
-export default Route<{search: string; foo?: number}>({
+export default Route<{search?: string; foo?: number}>({
     path: '/foo',
     parse: {
-        search: Parse.queryString,
-        foo: Parse.queryNumber
-        //foo: Parse.queryNumber.optional.fallback(0)
+        search: Parse.query.string.optional(),
+        foo: Parse.query.number.optional()
     },
     component: function Foo() {
         const routes = useRoutes();

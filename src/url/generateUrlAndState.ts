@@ -12,17 +12,35 @@ export default function generateUrlAndState<T extends Record<string, any>>(
         let key: keyof T;
         for (key in config.parse) {
             const parser = config.parse[key];
-            const outData = parser.out(args[key]);
-            switch (parser._type) {
-                case 'queryJSON':
-                case 'queryNumber':
-                case 'queryString':
+            let outData;
+
+            if (args[key] === undefined && parser._optional) {
+                outData = parser._fallback || args[key];
+            } else {
+                switch (parser.kind) {
+                    case 'number':
+                        outData = args[key].toString();
+                        break;
+
+                    case 'JSON':
+                        outData = JSON.stringify(
+                            parser.source === 'hash' ? encodeURIComponent(args[key]) : args[key]
+                        );
+                        break;
+
+                    case 'string':
+                    case 'transparent':
+                        outData = args[key];
+                        break;
+                }
+            }
+
+            switch (parser.source) {
+                case 'query':
                     queryData[key] = outData;
                     break;
 
-                case 'hashString':
-                case 'hashNumber':
-                case 'hashJSON':
+                case 'hash':
                     hash = outData;
                     break;
 

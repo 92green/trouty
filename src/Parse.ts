@@ -1,123 +1,45 @@
-type ParseType =
-    | 'param'
-    | 'queryString'
-    | 'queryNumber'
-    | 'queryBoolean'
-    | 'queryJSON'
-    | 'hashString'
-    | 'hashNumber'
-    | 'hashBoolean'
-    | 'hashJSON'
-    | 'state'
-    | 'hash';
+type Source = 'param' | 'query' | 'hash' | 'state';
+type Kind = 'JSON' | 'string' | 'number' | 'boolean' | 'transparent';
 
 export default class Parse<T> {
-    _type: ParseType;
-    _fallback?: T;
     _optional: boolean;
-
-    constructor(type: ParseType) {
-        this._type = type;
+    _fallback?: T | undefined;
+    source: Source;
+    kind: Kind;
+    constructor(source: Source, kind: Kind) {
+        this.source = source;
+        this.kind = kind;
         this._optional = false;
     }
     static get param() {
-        return new ParseString('param');
+        return {
+            number: new Parse<number>('param', 'number'),
+            string: new Parse<string>('param', 'string')
+        };
     }
-    static get queryString() {
-        return new ParseString('queryString');
+    static get query() {
+        return {
+            number: new Parse<number>('query', 'number'),
+            string: new Parse<string>('query', 'string'),
+            boolean: new Parse<boolean>('query', 'boolean'),
+            JSON: new Parse<any>('query', 'JSON')
+        };
     }
-    static get queryNumber() {
-        return new ParseNumber('queryNumber');
-    }
-    static get queryBoolean() {
-        return new ParseBoolean('queryBoolean');
-    }
-    static get queryJSON() {
-        return new ParseJSON('queryJSON');
-    }
-    static get hashString() {
-        return new ParseString('hashString');
-    }
-    static get hashNumber() {
-        return new ParseNumber('hashNumber');
-    }
-    static get hashBoolean() {
-        return new ParseBoolean('hashBoolean');
-    }
-    static get hashJSON() {
-        return new ParseJSON('hashJSON');
+    static get hash() {
+        return {
+            number: new Parse<number>('hash', 'number'),
+            string: new Parse<string>('hash', 'string'),
+            boolean: new Parse<boolean>('hash', 'boolean'),
+            JSON: new Parse<any>('hash', 'JSON')
+        };
     }
     static get state() {
-        return new ParseState('state');
+        return new Parse<any>('state', 'transparent');
     }
 
-    get optional(): Parse<T | undefined> {
+    optional<V extends T | undefined>(value?: V): Parse<T | V> {
         this._optional = true;
+        this._fallback = value;
         return this;
-    }
-
-    fallback(fallback: NonNullable<T>) {
-        this._fallback = fallback;
-        return this as unknown as Parse<NonNullable<T>>;
-    }
-
-    getFallback(key: string, x: any) {
-        if (x === undefined) {
-            if (this._optional) return this._fallback ?? x;
-            throw new Error(`${key} is required but was ${x}`);
-        }
-        return x;
-    }
-}
-
-class ParseNumber extends Parse<number> {
-    in(key: string, x: string | undefined): number | undefined {
-        this.getFallback(key, x);
-        return Number(x);
-    }
-    out(x: number): string {
-        return x.toString();
-    }
-}
-
-class ParseString extends Parse<string> {
-    in(key: string, x: string): string {
-        this.getFallback(key, x);
-        return x;
-    }
-    out(x: string): string {
-        return x;
-    }
-}
-
-class ParseBoolean extends Parse<boolean> {
-    in(key: string, x: string): boolean | undefined {
-        this.getFallback(key, x);
-        return Boolean(x);
-    }
-    out(x: boolean): string {
-        return x.toString();
-    }
-}
-class ParseJSON extends Parse<any> {
-    in(key: string, x: string): any {
-        this.getFallback(key, x);
-        return JSON.parse(decodeURIComponent(x) || '{}');
-    }
-    out(x: any): string {
-        if (x === undefined && this._fallback) return this._fallback;
-        if (this._type === 'hashJSON') return encodeURIComponent(JSON.stringify(x));
-        return JSON.stringify(x);
-    }
-}
-
-class ParseState extends Parse<any> {
-    in(key: string, x: any): any {
-        this.getFallback(key, x);
-        return x;
-    }
-    out(x: any): any {
-        if (x === undefined && this._fallback) return this._fallback;
-        return x;
     }
 }

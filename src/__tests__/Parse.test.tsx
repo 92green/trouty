@@ -21,43 +21,35 @@ function createRoute<T>(name: string, config: Omit<RouteConfig<T>, 'component'>,
     });
 }
 
-const a = Route<{a?: string; b: number}>({
-    path: '/foo',
-    parse: {
-        a: Parse.queryString,
-        b: Parse.queryNumber.optional.fallback(0)
-    },
-    component: () => {
-        return null;
-    }
-});
-
 const getArgs = () => JSON.parse(screen.getByTitle('value').textContent || '{}');
 
 const params = createRoute<{a: string; b: string}>(
     'params',
-    {path: '/params/:a/:b', parse: {a: Parse.param, b: Parse.param}},
+    {path: '/params/:a/:b', parse: {a: Parse.param.string, b: Parse.param.string}},
     {a: 'bar', b: 'foo'}
 );
 
 const queryString = createRoute<{a: string; b: number; c: string[]}>(
     'queryString',
-    {path: '/queryString', parse: {a: Parse.queryString, b: Parse.queryNumber, c: Parse.queryJSON}},
+    {
+        path: '/queryString',
+        parse: {a: Parse.query.string, b: Parse.query.number, c: Parse.query.JSON}
+    },
     {a: 'bar', b: 5, c: ['zzz']}
 );
 const hashJson = createRoute<{a: string[]}>(
     'hashJson',
-    {path: '/hashJson', parse: {a: Parse.hashJSON}},
+    {path: '/hashJson', parse: {a: Parse.hash.JSON}},
     {a: ['bar']}
 );
 const hashNumber = createRoute<{a: number}>(
     'hashNumber',
-    {path: '/hashNumber', parse: {a: Parse.hashNumber}},
+    {path: '/hashNumber', parse: {a: Parse.hash.number}},
     {a: 5}
 );
 const hashString = createRoute<{a: string}>(
     'hashString',
-    {path: '/hashString', parse: {a: Parse.hashString}},
+    {path: '/hashString', parse: {a: Parse.hash.string}},
     {a: 'bar'}
 );
 
@@ -66,9 +58,9 @@ const optional = createRoute<{a?: string; b?: string; c?: string}>(
     {
         path: '/optional',
         parse: {
-            a: Parse.queryString.optional.fallback('query'),
-            b: Parse.hashString.optional.fallback('hash'),
-            c: Parse.param.optional.fallback('param')
+            a: Parse.query.string.optional('query'),
+            b: Parse.hash.string.optional('hash'),
+            c: Parse.param.string.optional('param')
         }
     },
     {required: 'foo'}
@@ -79,7 +71,7 @@ const optionalState = createRoute<{a?: string[]}>(
     {
         path: '/optionalState',
         parse: {
-            a: Parse.state.optional.fallback('state')
+            a: Parse.state.optional('state')
         }
     },
     {}
@@ -87,7 +79,7 @@ const optionalState = createRoute<{a?: string[]}>(
 
 const state = createRoute<{a: string[]}>(
     'state',
-    {path: '/state', parse: {a: Parse.state}},
+    {path: '/state', parse: {a: Parse.state.optional(undefined)}},
     {a: ['bar']}
 );
 
@@ -121,22 +113,22 @@ describe('parsing', () => {
         expect(screen.getByTitle('to').textContent).toBe('/params/bar/foo');
     });
 
-    it('parses the queryString', () => {
-        renderRoute('/queryString?a=foo&b=2&c=%5B%22foo%22%5D');
+    it('parses the query.string', () => {
+        renderRoute('/query.string?a=foo&b=2&c=%5B%22foo%22%5D');
         const args = JSON.parse(screen.getByTitle('value').textContent || '{}');
         expect(args.a).toBe('foo');
         expect(args.b).toBe(2);
         expect(args.c).toEqual(['foo']);
         expect(screen.getByTitle('to').textContent).toBe(
-            '/queryString?a=bar&b=5&c=%5B%22zzz%22%5D'
+            '/query.string?a=bar&b=5&c=%5B%22zzz%22%5D'
         );
     });
 
     it('parses the hash string', () => {
-        renderRoute('/hashString#foo');
+        renderRoute('/hash.string#foo');
         const args = getArgs();
         expect(args.a).toBe('foo');
-        expect(screen.getByTitle('to').textContent).toBe('/hashString#bar');
+        expect(screen.getByTitle('to').textContent).toBe('/hash.string#bar');
     });
 
     it('parses the hash number', () => {
@@ -146,7 +138,7 @@ describe('parsing', () => {
         expect(screen.getByTitle('to').textContent).toBe('/hashNumber#5');
     });
 
-    it('parses the hash json', () => {
+    it.only('parses the hash json', () => {
         renderRoute('/hashJson#%5B%22foo%22%5D');
         const args = getArgs();
         expect(args.a).toEqual(['foo']);
@@ -180,11 +172,13 @@ describe('modifiers', () => {
     });
 
     it('will throw if required state args are missing', () => {
-        expect(() => renderRoute('/requiredState')).toThrowError(/a is required but was undefined/);
+        expect(() => renderRoute('/requiredState')).toThrowError(
+            /a is not optional but was undefined/
+        );
     });
 
     it('will not throw if other props are missing', () => {
-        expect(() => renderRoute('/queryString')).not.toThrow();
+        expect(() => renderRoute('/query.string')).not.toThrow();
         expect(() => renderRoute('/hashJson')).not.toThrow();
     });
 
