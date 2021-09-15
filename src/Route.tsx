@@ -5,17 +5,23 @@ import {RouteObject, RouteConfig} from './definitions';
 import getArgs from './url/getArgs';
 import {History} from 'history';
 
-export default function Route<T>(config: RouteConfig<T>): RouteObject<T> {
+/**
+The Route function is a wrapper around a component that describes what parts of the url are required by this component.
+- config.path: The url you want to map to
+- config.parse: a parsing object that matches your `args`
+--- 
+*/
+export default function Route<Args>(config: RouteConfig<Args>): RouteObject<Args> {
     const {path, component: Component} = config;
 
     function RouteNode() {
-        const params = useParams<T>();
+        const params = useParams<Args>();
         const location = useLocation();
-        const args = getArgs<T>(config, {params, location});
+        const args = getArgs<Args>(config, {params, location});
         return <Component args={args} />;
     }
 
-    const go = generateUrlAndState<T>(config);
+    const go = generateUrlAndState<Args>(config);
 
     return {
         route: (
@@ -26,10 +32,10 @@ export default function Route<T>(config: RouteConfig<T>): RouteObject<T> {
         // @ts-ignore - this is a dummy type to pass around for context
         _type: null,
         _actionCreator: (history: History) => ({
-            to: (args) => go(args)[0],
-            href: (args) => go(args)[0],
-            push: (args: T) => history.push(...go(args)),
-            replace: (args: T) => history.replace(...go(args))
+            to: (args: Args) => go(args)[0],
+            href: (args: Args) => go(args)[0],
+            push: (args: Args) => history.push(...go(args)),
+            replace: (args: Args) => history.replace(...go(args))
         })
     };
 }

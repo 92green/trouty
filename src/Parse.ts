@@ -11,12 +11,16 @@ export default class Parse<T> {
         this.kind = kind;
         this._optional = false;
     }
+
+    /** Get values out of the path params */
     static get param() {
         return {
             number: new Parse<number>('param', 'number'),
             string: new Parse<string>('param', 'string')
         };
     }
+
+    /** Get values out of the query string */
     static get query() {
         return {
             number: new Parse<number>('query', 'number'),
@@ -25,6 +29,8 @@ export default class Parse<T> {
             JSON: new Parse<any>('query', 'JSON')
         };
     }
+
+    /** Get values from the hash. Note that there can only ever be one hash object */
     static get hash() {
         return {
             number: new Parse<number>('hash', 'number'),
@@ -33,6 +39,8 @@ export default class Parse<T> {
             JSON: new Parse<any>('hash', 'JSON')
         };
     }
+
+    /** Get values from history state */
     static get state() {
         return new Parse<any>('state', 'transparent');
     }

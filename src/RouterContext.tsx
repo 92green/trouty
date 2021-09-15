@@ -2,6 +2,11 @@ import React, {createContext, useContext} from 'react';
 import {useHistory} from 'react-router-dom';
 import {RouteObject, Routes} from './definitions';
 
+/**
+Once your routes are defined you can bring them together in a route context. This context is the namespace that defines what routes are allowed to be transitioned to.
+
+@returns `RoutesProvider`, a `useRoutes` access hook for your components, and a `routes` object of components for you to render in a `<Switch />`.
+*/
 export default function createRouterContext<R extends Record<string, RouteObject<any>>>(routes: R) {
     const RoutesContext = createContext<Routes<R> | undefined>(undefined);
 

@@ -81,7 +81,7 @@ Now we can wrap out RoutesProvider in a BrowserRouter and place our route elemen
 Routes is object that matches the shape given to createRouteContext, this allows you to split your routes up over multiple switches and render them in what ever component makes sense.
 In this example we are using Object.values to just place all the routes in a single switch
 
-```ts
+```tsx
 import {BrowserRouter, Switch} from 'trouty';
 import {RoutesProvider, routes} from './RouteContext';
 
