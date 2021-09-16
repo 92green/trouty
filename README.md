@@ -1,9 +1,11 @@
+
 # Trouty
 
 A typesafe router for react, built on top of react router.
 
 String templating routes is fraught with danger, and mixing params and query parameters is a pain. Let trouty take care of that.
 
+![trouty-example](https://user-images.githubusercontent.com/3760524/133530281-3b461964-b3a6-4fe7-a82f-21bb6354122e.png)
 
 ## Getting Started
 
