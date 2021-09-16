@@ -16,7 +16,11 @@ export default class Parse<T> {
     static get param() {
         return {
             number: new Parse<number>('param', 'number'),
-            string: new Parse<string>('param', 'string')
+            string: new Parse<string>('param', 'string'),
+            /** Can't think of a use case for this, but why not? */
+            boolean: new Parse<any>('param', 'boolean'),
+            /** This is technically possible but probably not sensible */
+            JSON: new Parse<any>('param', 'JSON')
         };
     }
 
