@@ -11,7 +11,7 @@ The Route function is a wrapper around a component that describes what parts of 
 - config.parse: a parsing object that matches your `args`
 --- 
 */
-export default function Route<Args>(config: RouteConfig<Args>): RouteObject<Args> {
+export default function Route<Args = void>(config: RouteConfig<Args>): RouteObject<Args> {
     const {path, component: Component} = config;
 
     function RouteNode() {
