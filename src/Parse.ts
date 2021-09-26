@@ -28,11 +28,8 @@ export default class Parse<T> {
             string: <F extends Validate<string, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('param', 'string', fn),
             /** Can't think of a use case for this, but why not? */
-            boolean: <F extends Validate<string, any>>(fn: F) =>
-                new Parse<ReturnType<F>>('param', 'boolean', fn),
-            /** This is technically possible but probably not sensible */
-            JSON: <F extends ValidateUnknown<any>>(fn: F) =>
-                new Parse<ReturnType<F>>('param', 'JSON', fn)
+            boolean: <F extends Validate<boolean, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('param', 'boolean', fn)
         };
     }
 
@@ -43,7 +40,7 @@ export default class Parse<T> {
                 new Parse<ReturnType<F>>('query', 'number', fn),
             string: <F extends Validate<string, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('query', 'string', fn),
-            boolean: <F extends Validate<string, any>>(fn: F) =>
+            boolean: <F extends Validate<boolean, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('query', 'boolean', fn),
             JSON: <F extends ValidateUnknown<any>>(fn: F) =>
                 new Parse<ReturnType<F>>('query', 'JSON', fn)
@@ -57,7 +54,7 @@ export default class Parse<T> {
                 new Parse<ReturnType<F>>('hash', 'number', fn),
             string: <F extends Validate<string, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('hash', 'string', fn),
-            boolean: <F extends Validate<string, any>>(fn: F) =>
+            boolean: <F extends Validate<boolean, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('hash', 'boolean', fn),
             JSON: <F extends ValidateUnknown<any>>(fn: F) =>
                 new Parse<ReturnType<F>>('hash', 'JSON', fn)

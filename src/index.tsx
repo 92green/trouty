@@ -26,4 +26,7 @@ export {Switch} from 'react-router-dom';
 /*
 @todo
 - Complain about multiple hash parsers
+- Replace react-router with an internal context
+    - Don't re-parse the query string on transitions, only external history changes.
+- Allow function in transitions
 */

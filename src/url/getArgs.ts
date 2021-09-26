@@ -38,8 +38,12 @@ export default function getArgs<T extends Record<string, any>>(
             args[key] = validate(value);
         } else {
             switch (parser.kind) {
+                case 'boolean':
+                    args[key] = validate(JSON.parse(value));
+                    break;
+
                 case 'number':
-                    args[key] = validate(Number(value) as any);
+                    args[key] = validate(Number(value));
                     break;
 
                 case 'JSON':
