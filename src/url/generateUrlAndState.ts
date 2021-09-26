@@ -1,9 +1,7 @@
 import {RouteConfig} from '../definitions';
 import {generatePath} from 'react-router-dom';
 
-export default function generateUrlAndState<T extends Record<string, any>>(
-    config: RouteConfig<any>
-) {
+export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
     return (args: T): [string, Partial<T>] => {
         let hash = '';
         const queryData: Partial<Record<keyof T, string>> = {};
@@ -12,10 +10,11 @@ export default function generateUrlAndState<T extends Record<string, any>>(
         let key: keyof T;
         for (key in config.parse) {
             const parser = config.parse[key];
+            const {validate} = parser;
             let outData;
 
-            if (args[key] === undefined && parser._optional) {
-                outData = parser._fallback || args[key];
+            if (args[key] === undefined) {
+                outData = validate(undefined);
             } else {
                 switch (parser.kind) {
                     case 'number':
@@ -24,15 +23,14 @@ export default function generateUrlAndState<T extends Record<string, any>>(
 
                     case 'JSON':
                         const stringified = JSON.stringify(args[key]);
-                        outData =
-                            parser.source === 'hash'
-                                ? encodeURIComponent(stringified)
-                                : stringified;
+                        outData = validate(
+                            parser.source === 'hash' ? encodeURIComponent(stringified) : stringified
+                        );
                         break;
 
                     case 'string':
                     case 'transparent':
-                        outData = args[key];
+                        outData = validate(args[key]);
                         break;
                 }
             }

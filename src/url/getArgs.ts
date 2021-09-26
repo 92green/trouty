@@ -12,6 +12,7 @@ export default function getArgs<T extends Record<string, any>>(
     let key: keyof T;
     for (key in parse) {
         const parser = parse[key];
+        const {validate} = parser;
 
         let value;
         switch (parser.source) {
@@ -34,28 +35,22 @@ export default function getArgs<T extends Record<string, any>>(
         }
 
         if (value === undefined) {
-            if (parser._optional) {
-                args[key] = parser._fallback || value;
-            } else {
-                throw new Error(
-                    `${config.path} args.${key} is not optional but was undefined [${parser.source}:${parser.kind}]`
-                );
-            }
+            args[key] = validate(value);
         } else {
             switch (parser.kind) {
                 case 'number':
-                    args[key] = Number(value) as any;
+                    args[key] = validate(Number(value) as any);
                     break;
 
                 case 'JSON':
-                    args[key] = JSON.parse(
-                        parser.source === 'hash' ? decodeURIComponent(value) : value
+                    args[key] = validate(
+                        JSON.parse(parser.source === 'hash' ? decodeURIComponent(value) : value)
                     );
                     break;
 
                 case 'string':
                 case 'transparent':
-                    args[key] = value;
+                    args[key] = validate(value);
                     break;
             }
         }

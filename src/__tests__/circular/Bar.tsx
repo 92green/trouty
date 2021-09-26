@@ -5,7 +5,7 @@ import {useRoutes} from './Router';
 export default Route<{search?: string}>({
     path: '/bar',
     parse: {
-        search: Parse.query.string.optional()
+        search: Parse.query.string((x) => x)
     },
     component: function Bar() {
         const routes = useRoutes();

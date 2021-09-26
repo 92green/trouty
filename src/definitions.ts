@@ -21,37 +21,25 @@ export type Routes<R extends Record<string, RouteObject<any>> = {}> = {
     [K in keyof R]: RouteMethods<R[K]['_type']>;
 };
 
-export type RouteConfig<T> = T extends void
-    ? {
-          /** The url for this route, follows react-router conventions.  */
-          path: string;
-          /** The component to render when the path matches */
-          component: ComponentType<{args: T}> | LazyExoticComponent<ComponentType<{args: T}>>;
-      }
-    : {
-          /** The url for this route, follows react-router conventions.  */
-          path: string;
-          /** The component to render when the path matches */
-          component: ComponentType<{args: T}> | LazyExoticComponent<ComponentType<{args: T}>>;
+export type LazyRouteConfig<T> = {
+    path: string;
+    component: LazyExoticComponent<ComponentType<{args: T}>>;
+    parse: {
+        [K in keyof T]-?: {} extends Pick<T, K> ? Parse<T[K] | undefined> : Parse<T[K]>;
+    };
+};
 
-          /** 
-          An object that matches the shape of the routes args, where each key defines a parser. 
-          @example
-          ```ts
-          import {Route, Parse} from 'trouty';
+export type StandardRouteConfig<T> = {
+    path: string;
+    component: ComponentType<{args: T}>;
+    parse: {
+        [K in keyof T]-?: {} extends Pick<T, K> ? Parse<T[K] | undefined> : Parse<T[K]>;
+    };
+};
 
-          export const UserItem = Route<{id: string, page: number, filter: string[]}>({
-              path: '/user/:id',
-              parse: {
-                  id: Parse.param.string,
-                  page: Parse.query.string,
-                  filter: Parse.query.json
-              },
-              component: () => {}
-          });
-          ```
-          */
-          parse: {
-              [K in keyof T]-?: {} extends Pick<T, K> ? Parse<T[K] | undefined> : Parse<T[K]>;
-          };
-      };
+export type BoringRouteConfig = {
+    path: string;
+    component: ComponentType<any> | LazyExoticComponent<any>;
+};
+
+export type RouteConfig<T> = LazyRouteConfig<T> | StandardRouteConfig<T>;

@@ -14,7 +14,7 @@
                                                    \______/ 
 */
 
-export {default as Route} from './Route';
+export {Route, LazyRoute, BoringRoute} from './Route';
 export {default as createRouterContext} from './RouterContext';
 export {default as Parse} from './Parse';
 export {BrowserRouter} from 'react-router-dom';
@@ -25,10 +25,5 @@ export {Switch} from 'react-router-dom';
 
 /*
 @todo
-
-- Matching path and params
 - Complain about multiple hash parsers
-- Throw on missing data
-- Allow defaults
-
 */

@@ -7,8 +7,8 @@ import {createMemoryHistory, History} from 'history';
 const foo = Route<{id: string; search?: string}>({
     path: '/foo/:id',
     parse: {
-        id: Parse.param.string,
-        search: Parse.query.string.optional()
+        id: Parse.param.string((x) => x || ''),
+        search: Parse.query.string((x) => x)
     },
     component: function Foo(props) {
         const routes = useRoutes();
@@ -29,8 +29,8 @@ const foo = Route<{id: string; search?: string}>({
 const bar = Route<{id: string; search?: string}>({
     path: '/bar/:id',
     parse: {
-        id: Parse.param.string,
-        search: Parse.query.string.optional()
+        id: Parse.param.string((x) => x || ''),
+        search: Parse.query.string((x) => x)
     },
     component: function Bar() {
         return <div>Bar Route</div>;

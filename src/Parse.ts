@@ -1,57 +1,71 @@
 type Source = 'param' | 'query' | 'hash' | 'state';
 type Kind = 'JSON' | 'string' | 'number' | 'boolean' | 'transparent';
 
+type ValidateUnknown<T> = (value: unknown) => T;
+
+/** Provide validation for primitive values */
+type Validate<T, U> = (value: T | undefined) => U;
+
 export default class Parse<T> {
-    _optional: boolean;
-    _fallback?: T | undefined;
     source: Source;
     kind: Kind;
-    constructor(source: Source, kind: Kind) {
+    validate: Validate<any, any> | ValidateUnknown<any>;
+    _type: T;
+    constructor(source: Source, kind: Kind, validate: Validate<any, any> | ValidateUnknown<any>) {
         this.source = source;
         this.kind = kind;
-        this._optional = false;
+        this.validate = validate;
+
+        // @ts-ignore
+        this._type = null;
     }
 
     /** Get values out of the path params */
     static get param() {
         return {
-            number: new Parse<number>('param', 'number'),
-            string: new Parse<string>('param', 'string'),
+            number: <F extends Validate<number, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('param', 'number', fn),
+            string: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('param', 'string', fn),
             /** Can't think of a use case for this, but why not? */
-            boolean: new Parse<any>('param', 'boolean'),
+            boolean: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('param', 'boolean', fn),
             /** This is technically possible but probably not sensible */
-            JSON: new Parse<any>('param', 'JSON')
+            JSON: <F extends ValidateUnknown<any>>(fn: F) =>
+                new Parse<ReturnType<F>>('param', 'JSON', fn)
         };
     }
 
     /** Get values out of the query string */
     static get query() {
         return {
-            number: new Parse<number>('query', 'number'),
-            string: new Parse<string>('query', 'string'),
-            boolean: new Parse<boolean>('query', 'boolean'),
-            JSON: new Parse<any>('query', 'JSON')
+            number: <F extends Validate<number, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('query', 'number', fn),
+            string: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('query', 'string', fn),
+            boolean: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('query', 'boolean', fn),
+            JSON: <F extends ValidateUnknown<any>>(fn: F) =>
+                new Parse<ReturnType<F>>('query', 'JSON', fn)
         };
     }
 
     /** Get values from the hash. Note that there can only ever be one hash object */
     static get hash() {
         return {
-            number: new Parse<number>('hash', 'number'),
-            string: new Parse<string>('hash', 'string'),
-            boolean: new Parse<boolean>('hash', 'boolean'),
-            JSON: new Parse<any>('hash', 'JSON')
+            number: <F extends Validate<number, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('hash', 'number', fn),
+            string: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('hash', 'string', fn),
+            boolean: <F extends Validate<string, any>>(fn: F) =>
+                new Parse<ReturnType<F>>('hash', 'boolean', fn),
+            JSON: <F extends ValidateUnknown<any>>(fn: F) =>
+                new Parse<ReturnType<F>>('hash', 'JSON', fn)
         };
     }
 
     /** Get values from history state */
-    static get state() {
-        return new Parse<any>('state', 'transparent');
-    }
-
-    optional<V extends T | undefined>(value?: V): Parse<T | V> {
-        this._optional = true;
-        this._fallback = value;
-        return this;
+    static state<V>(fn: ValidateUnknown<V>) {
+        return new Parse<V>('state', 'transparent', fn);
     }
 }
