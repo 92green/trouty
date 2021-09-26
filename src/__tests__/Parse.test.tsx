@@ -41,63 +41,6 @@ function renderRoute<T>(config: {
     return {args, result};
 }
 
-//describe('parsing', () => {
-//it('parses the params', () => {
-//renderRoute('/params/foo/bar');
-//const args = getArgs();
-//expect(args.a).toBe('foo');
-//expect(args.b).toBe('bar');
-//expect(screen.getByTitle('to').textContent).toBe('/params/bar/foo');
-//});
-
-//it('parses the queryString', () => {
-//renderRoute('/queryString?a=foo&b=2&c=%5B%22foo%22%5D');
-//const args = JSON.parse(screen.getByTitle('value').textContent || '{}');
-//expect(args.a).toBe('foo');
-//expect(args.b).toBe(2);
-//expect(args.c).toEqual(['foo']);
-//expect(screen.getByTitle('to').textContent).toBe(
-//'/queryString?a=bar&b=5&c=%5B%22zzz%22%5D'
-//);
-//});
-
-//it('parses the hash string', () => {
-//renderRoute('/hashString#foo');
-//const args = getArgs();
-//expect(args.a).toBe('foo');
-//expect(screen.getByTitle('to').textContent).toBe('/hashString#bar');
-//});
-
-//it('parses the hash number', () => {
-//renderRoute('/hashNumber#2');
-//const args = getArgs();
-//expect(args.a).toBe(2);
-//expect(screen.getByTitle('to').textContent).toBe('/hashNumber#5');
-//});
-
-//it('parses the hash json', () => {
-//renderRoute('/hashJson#%5B%22foo%22%5D');
-//const args = getArgs();
-//expect(args.a).toEqual(['foo']);
-//expect(screen.getByTitle('to').textContent).toBe('/hashJson#%5B%22bar%22%5D');
-//});
-
-//it('parses the state', () => {
-//const history = createMemoryHistory({initialEntries: []});
-//history.push('/state', {a: ['foo']});
-//render(
-//<Router history={history}>
-//<RoutesProvider>{state.route}</RoutesProvider>
-//</Router>
-//);
-
-//const args = getArgs();
-//expect(args.a).toEqual(['foo']);
-//fireEvent.click(screen.getByTitle('link'));
-//expect(history.location.state).toEqual({a: ['bar']});
-//});
-//});
-
 describe('string', () => {
     it('can parse strings', () => {
         const {args} = renderRoute<{param: string; query: string; hash: string}>({

@@ -10,15 +10,23 @@ export type RouteObject<T> = {
     route: React.ReactNode;
 };
 
-type RouteMethods<T> = {
+export type RouteMethods<T> = {
     to: (args: T) => string;
     href: (args: T) => string;
     push: (args: T) => void;
     replace: (args: T) => void;
 };
+export type EmptyRouteMethods = {
+    to: () => string;
+    href: () => string;
+    push: () => void;
+    replace: () => void;
+};
 
 export type Routes<R extends Record<string, RouteObject<any>> = {}> = {
-    [K in keyof R]: RouteMethods<R[K]['_type']>;
+    [K in keyof R]: R[K]['_type'] extends undefined
+        ? EmptyRouteMethods
+        : RouteMethods<R[K]['_type']>;
 };
 
 export type LazyRouteConfig<T> = {

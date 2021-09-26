@@ -1,7 +1,14 @@
 import React from 'react';
 import {Route as ReactRouterRoute, useLocation, useParams} from 'react-router-dom';
 import generateUrlAndState from './url/generateUrlAndState';
-import {RouteObject, BoringRouteConfig, LazyRouteConfig, StandardRouteConfig} from './definitions';
+import {
+    RouteObject,
+    BoringRouteConfig,
+    LazyRouteConfig,
+    StandardRouteConfig,
+    RouteMethods,
+    EmptyRouteMethods
+} from './definitions';
 import getArgs from './url/getArgs';
 import {History} from 'history';
 
@@ -18,7 +25,7 @@ function createRouteObject<T>(
         ),
         // @ts-ignore - this is a dummy type to pass around for context
         _type: null,
-        _actionCreator: (history: History) => ({
+        _actionCreator: (history: History): RouteMethods<T> => ({
             to: (args: T) => go(args)[0],
             href: (args: T) => go(args)[0],
             push: (args: T) => history.push(...go(args)),
@@ -35,7 +42,6 @@ function createRouteComponent<T>(config: StandardRouteConfig<T> | LazyRouteConfi
         return <Component args={getArgs<T>(config, {params, location})} />;
     };
 }
-
 /**
 The Route function is a wrapper around a component that describes what parts of the url are required by this component.
 - config.path: The url you want to map to
@@ -56,7 +62,7 @@ export function LazyRoute<T = Record<string, any>>(config: LazyRouteConfig<T>): 
 /**
 BoringRoute have no arguments so don't require any parsers. Their component can be either lazy or normal.
 */
-export function BoringRoute(config: BoringRouteConfig): RouteObject<undefined> {
+export function BoringRoute(config: BoringRouteConfig) {
     const {path, component: Component} = config;
 
     return {
@@ -66,7 +72,7 @@ export function BoringRoute(config: BoringRouteConfig): RouteObject<undefined> {
             </ReactRouterRoute>
         ),
         _type: undefined,
-        _actionCreator: (history: History) => ({
+        _actionCreator: (history: History): EmptyRouteMethods => ({
             to: () => path,
             href: () => path,
             push: () => history.push(path),

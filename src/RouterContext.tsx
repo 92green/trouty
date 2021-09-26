@@ -21,6 +21,7 @@ export default function createRouterContext<R extends Record<string, RouteObject
         let value = {} as unknown as Routes<R>;
         let key: keyof Routes<R>;
         for (key in routes) {
+            // @ts-ignore - got no idea how to type this and it doesn't appear to effect anything
             value[key] = routes[key]._actionCreator(history);
         }
         return <RoutesContext.Provider value={value}>{props.children}</RoutesContext.Provider>;
