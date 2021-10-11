@@ -6,7 +6,7 @@ export type In<T> = (inData: string) => T;
 
 export type RouteObject<T> = {
     _type: T;
-    _actionCreator: (history: History) => RouteMethods<T>;
+    _actionCreator: (history: History) => RouteMethods<T> | EmptyRouteMethods;
     route: React.ReactNode;
 };
 
@@ -15,6 +15,7 @@ export type RouteMethods<T> = {
     href: (args: T) => string;
     push: (args: T) => void;
     replace: (args: T) => void;
+    args: T | null;
 };
 export type EmptyRouteMethods = {
     to: () => string;
