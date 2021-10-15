@@ -1,5 +1,5 @@
 import {ComponentType, LazyExoticComponent} from 'react';
-import {History} from 'history';
+import {History, LocationDescriptorObject} from 'history';
 import Parse from './Parse';
 export type Out<T> = (outData: T) => string;
 export type In<T> = (inData: string) => T;
@@ -11,7 +11,7 @@ export type RouteObject<T> = {
 };
 
 export type RouteMethods<T> = {
-    to: (args: T) => string;
+    to: (args: T) => LocationDescriptorObject<Partial<T>>;
     href: (args: T) => string;
     push: (args: T) => void;
     replace: (args: T) => void;

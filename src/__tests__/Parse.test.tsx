@@ -20,7 +20,7 @@ function renderRoute<T>(config: {
                     <div title="value">{JSON.stringify(props.args)}</div>
                     {transitionObject && (
                         <>
-                            <div title="to">{routes.route.to(transitionObject)}</div>
+                            <div title="to">{routes.route.href(transitionObject)}</div>
                             <a title="link" onClick={() => routes.route.push(transitionObject)} />
                         </>
                     )}

@@ -1,12 +1,13 @@
 import {RouteConfig} from '../definitions';
 import {generatePath} from 'react-router-dom';
+import {LocationDescriptorObject, createPath} from 'history';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
-    return (args: T): [string, Partial<T>] => {
-        let hash = '';
+    return (args: T): [string, LocationDescriptorObject<Partial<T>>] => {
         const queryData: Partial<Record<keyof T, string>> = {};
         const paramData: Partial<Record<keyof T, string>> = {};
         const state: Partial<T> = {};
+        let hashValue = '';
         let key: keyof T;
         for (key in config.parse) {
             const parser = config.parse[key];
@@ -32,7 +33,7 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
                     break;
 
                 case 'hash':
-                    hash = outData;
+                    hashValue = outData;
                     break;
 
                 case 'state':
@@ -44,10 +45,15 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
                     break;
             }
         }
-        const search = new URLSearchParams(queryData as Record<string, string>).toString();
-        let url = generatePath(config.path, paramData);
-        if (search) url += `?${search}`;
-        if (hash) url += `#${hash}`;
-        return [url, state];
+
+        const searchValue = new URLSearchParams(queryData as Record<string, string>).toString();
+        const nextLocation = {
+            pathname: generatePath(config.path, paramData),
+            hash: `#${hashValue}`,
+            search: `?${searchValue}`,
+            state
+        };
+
+        return [createPath(nextLocation), nextLocation];
     };
 }

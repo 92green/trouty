@@ -28,10 +28,10 @@ function createRouteObject<T>(
         _actionCreator: (history: History): RouteMethods<T> => {
             const match = matchPath<T>(history.location.pathname, {path: config.path, exact: true});
             return {
-                to: (args: T) => go(args)[0],
+                to: (args: T) => go(args)[1],
                 href: (args: T) => go(args)[0],
-                push: (args: T) => history.push(...go(args)),
-                replace: (args: T) => history.replace(...go(args)),
+                push: (args: T) => history.push(go(args)[1]),
+                replace: (args: T) => history.replace(go(args)[1]),
                 args: match
                     ? getArgs<T>(config, {location: history.location, params: match.params})
                     : null
