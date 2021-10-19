@@ -11,7 +11,9 @@ export type RouteObject<T> = {
 };
 
 export type RouteMethods<T> = {
-    to: (args: T) => LocationDescriptorObject<Partial<T>>;
+    // This is not great, becuase state is actually a subset of T not Partial<T>
+    // Also the union is just some react-router type narrrowing we have to conform to
+    to: (args: T) => LocationDescriptorObject<Partial<T>> & {pathname: string; search: string};
     href: (args: T) => string;
     push: (args: T) => void;
     replace: (args: T) => void;
