@@ -26,23 +26,24 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
                         parser.source === 'hash' ? encodeURIComponent(stringified) : stringified;
                     break;
             }
+            if (outData !== undefined) {
+                switch (parser.source) {
+                    case 'query':
+                        queryData[key] = outData;
+                        break;
 
-            switch (parser.source) {
-                case 'query':
-                    queryData[key] = outData;
-                    break;
+                    case 'hash':
+                        hashValue = outData;
+                        break;
 
-                case 'hash':
-                    hashValue = outData;
-                    break;
+                    case 'state':
+                        state[key] = outData;
+                        break;
 
-                case 'state':
-                    state[key] = outData;
-                    break;
-
-                case 'param':
-                    paramData[key] = outData;
-                    break;
+                    case 'param':
+                        paramData[key] = outData;
+                        break;
+                }
             }
         }
 
