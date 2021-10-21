@@ -1,5 +1,6 @@
 import {ComponentType, LazyExoticComponent} from 'react';
-import {History, LocationDescriptorObject} from 'history';
+import {History} from 'history';
+import {LinkProps} from 'react-router-dom';
 import Parse from './Parse';
 export type Out<T> = (outData: T) => string;
 export type In<T> = (inData: string) => T;
@@ -13,7 +14,7 @@ export type RouteObject<T> = {
 export type RouteMethods<T> = {
     // This is not great, becuase state is actually a subset of T not Partial<T>
     // Also the union is just some react-router type narrrowing we have to conform to
-    to: (args: T) => LocationDescriptorObject<Partial<T>> & {pathname: string; search: string};
+    to: (args: T) => LinkProps<Partial<T>>['to'];
     href: (args: T) => string;
     push: (args: T) => void;
     replace: (args: T) => void;

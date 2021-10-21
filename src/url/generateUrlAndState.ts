@@ -1,9 +1,10 @@
 import {RouteConfig} from '../definitions';
 import {generatePath} from 'react-router-dom';
-import {LocationDescriptorObject, createPath} from 'history';
+import {createPath} from 'history';
+import {LinkProps} from 'react-router-dom';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
-    return (args: T): [string, LocationDescriptorObject<Partial<T>>] => {
+    return (args: T): [string, LinkProps<Partial<T>>['to']] => {
         const queryData: Partial<Record<keyof T, string>> = {};
         const paramData: Partial<Record<keyof T, string>> = {};
         const state: Partial<T> = {};
