@@ -14,19 +14,21 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
             const {validate} = parser;
             let outData = validate(args[key]);
 
-            switch (parser.kind) {
-                case 'boolean':
-                case 'number':
-                    outData = outData.toString();
-                    break;
-
-                case 'JSON':
-                    const stringified = JSON.stringify(outData);
-                    outData =
-                        parser.source === 'hash' ? encodeURIComponent(stringified) : stringified;
-                    break;
-            }
             if (outData !== undefined) {
+                switch (parser.kind) {
+                    case 'boolean':
+                    case 'number':
+                        outData = outData.toString();
+                        break;
+
+                    case 'JSON':
+                        const stringified = JSON.stringify(outData);
+                        outData =
+                            parser.source === 'hash'
+                                ? encodeURIComponent(stringified)
+                                : stringified;
+                        break;
+                }
                 switch (parser.source) {
                     case 'query':
                         queryData[key] = outData;
