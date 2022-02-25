@@ -10,13 +10,25 @@ import {
     EmptyRouteMethods
 } from './definitions';
 import getArgs from './url/getArgs';
-import {History} from 'history';
+import compareLocations from './url/compareLocations';
+import {History, LocationDescriptorObject} from 'history';
 
 function createRouteObject<T>(
     config: StandardRouteConfig<T> | LazyRouteConfig<T>,
     RouteComponent: React.ComponentType<any>
 ): RouteObject<T> {
     const go = generateUrlAndState<T>(config);
+
+    const safeTransition = (
+        current: LocationDescriptorObject,
+        next: LocationDescriptorObject,
+        method: Function
+    ) => {
+        if (!compareLocations(current, next)) {
+            method(next);
+        }
+    };
+
     return {
         route: (
             <ReactRouterRoute exact path={config.path} key={config.path}>
@@ -30,8 +42,12 @@ function createRouteObject<T>(
             return {
                 to: (args: T) => go(args)[1],
                 href: (args: T) => go(args)[0],
-                push: (args: T) => history.push(go(args)[1]),
-                replace: (args: T) => history.replace(go(args)[1]),
+                push: (args: T) => {
+                    safeTransition(history.location, go(args)[1], history.push);
+                },
+                replace: (args: T) => {
+                    safeTransition(history.location, go(args)[1], history.replace);
+                },
                 args: match
                     ? getArgs<T>(config, {location: history.location, params: match.params})
                     : null

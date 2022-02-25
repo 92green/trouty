@@ -1,10 +1,9 @@
 import {RouteConfig} from '../definitions';
 import {generatePath} from 'react-router-dom';
-import {createPath} from 'history';
-import {LinkProps} from 'react-router-dom';
+import {createPath, LocationDescriptorObject} from 'history';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
-    return (args: T): [string, LinkProps<Partial<T>>['to']] => {
+    return (args: T): [string, LocationDescriptorObject] => {
         const queryData: Partial<Record<keyof T, string>> = {};
         const paramData: Partial<Record<keyof T, string>> = {};
         const state: Partial<T> = {};
@@ -51,10 +50,10 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
         }
 
         const searchValue = new URLSearchParams(queryData as Record<string, string>).toString();
-        const nextLocation = {
+        const nextLocation: LocationDescriptorObject = {
             pathname: generatePath(config.path, paramData),
-            hash: `#${hashValue}`,
-            search: `?${searchValue}`,
+            hash: hashValue ? `#${hashValue}` : '',
+            search: searchValue ? `?${searchValue}` : '',
             state
         };
 

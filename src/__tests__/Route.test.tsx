@@ -115,7 +115,7 @@ describe('navigation', () => {
     it('returns the next route from to and href', () => {
         renderRoute('/foo/123?search=orange');
         expect(screen.getByTitle('to').textContent).toBe(
-            '{"pathname":"/bar/456","hash":"#","search":"?search=purple","state":{}}'
+            '{"pathname":"/bar/456","hash":"","search":"?search=purple","state":{}}'
         );
         expect(screen.getByTitle('href').textContent).toBe('/bar/456?search=purple');
     });
