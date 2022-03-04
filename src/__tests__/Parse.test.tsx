@@ -200,6 +200,48 @@ describe('json', () => {
     });
 });
 
+describe('urlon', () => {
+    it('can parse URLON', () => {
+        const hash = encodeURIComponent('@=hash&=value');
+        const query = encodeURIComponent('@=query&=string');
+
+        const {args} = renderRoute<{query: string[]; hash: string[]}>({
+            routeConfig: {
+                path: '/URLON',
+                parse: {
+                    query: Parse.query.URLON((x) => (Array.isArray(x) ? x : ['foo'])),
+                    hash: Parse.hash.URLON((x) => (Array.isArray(x) ? x : ['foo']))
+                }
+            },
+            initialPath: `/URLON?query=${query}#${hash}`,
+            transitionObject: {query: ['bar'], hash: ['bar']}
+        });
+        expect(args.query).toEqual(['query', 'string']);
+        expect(args.hash).toEqual(['hash', 'value']);
+        expect(screen.getByTitle('to').textContent).toBe(
+            `/URLON?query=${encodeURIComponent('@=bar')}#${encodeURIComponent('@=bar')}`
+        );
+    });
+
+    it('will pass undefined to validator if not found', () => {
+        let query: any = '';
+        let hash: any = '';
+        const {args} = renderRoute<{query?: string[]; hash?: string[]}>({
+            routeConfig: {
+                path: '/JSON',
+                parse: {
+                    query: Parse.query.URLON((x) => ((query = x), ['foo'])),
+                    hash: Parse.hash.URLON((x) => ((hash = x), ['foo']))
+                }
+            },
+            initialPath: '/JSON'
+        });
+        expect(query).toBeUndefined();
+        expect(hash).toBeUndefined();
+        expect(args).toEqual({query: ['foo'], hash: ['foo']});
+    });
+});
+
 describe('state', () => {
     it('can parse state', () => {
         const {args} = renderRoute<{a: string[]; b: string}>({
