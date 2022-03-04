@@ -1,7 +1,6 @@
 import {RouteConfig} from '../definitions';
 import {generatePath} from 'react-router-dom';
 import {createPath, LocationDescriptorObject} from 'history';
-import urlon from 'urlon';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
     return (args: T): [string, LocationDescriptorObject] => {
@@ -22,13 +21,12 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
                         outData = outData.toString();
                         break;
 
-                    case 'URLON':
                     case 'JSON':
-                        const stringify = parser.kind === 'JSON' ? JSON.stringify : urlon.stringify;
+                        const stringified = JSON.stringify(outData);
                         outData =
                             parser.source === 'hash'
-                                ? encodeURIComponent(stringify(outData))
-                                : stringify(outData);
+                                ? encodeURIComponent(stringified)
+                                : stringified;
                         break;
                 }
                 switch (parser.source) {

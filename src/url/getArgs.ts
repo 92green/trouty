@@ -1,6 +1,5 @@
 import {RouteConfig} from '../definitions';
 import {Location} from 'history';
-import urlon from 'urlon';
 
 export default function getArgs<T extends Record<string, any>>(
     config: RouteConfig<T>,
@@ -48,10 +47,8 @@ export default function getArgs<T extends Record<string, any>>(
                     break;
 
                 case 'JSON':
-                case 'URLON':
-                    const parserFn = parser.kind === 'JSON' ? JSON.parse : urlon.parse;
                     args[key] = validate(
-                        parserFn(parser.source === 'hash' ? decodeURIComponent(value) : value)
+                        JSON.parse(parser.source === 'hash' ? decodeURIComponent(value) : value)
                     );
                     break;
 

@@ -1,5 +1,5 @@
 type Source = 'param' | 'query' | 'hash' | 'state';
-type Kind = 'JSON' | 'URLON' | 'string' | 'number' | 'boolean' | 'transparent';
+type Kind = 'JSON' | 'string' | 'number' | 'boolean' | 'transparent';
 
 type ValidateUnknown<T> = (value: unknown) => T;
 
@@ -43,9 +43,7 @@ export default class Parse<T> {
             boolean: <F extends Validate<boolean, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('query', 'boolean', fn),
             JSON: <F extends ValidateUnknown<any>>(fn: F) =>
-                new Parse<ReturnType<F>>('query', 'JSON', fn),
-            URLON: <F extends ValidateUnknown<any>>(fn: F) =>
-                new Parse<ReturnType<F>>('query', 'URLON', fn)
+                new Parse<ReturnType<F>>('query', 'JSON', fn)
         };
     }
 
@@ -59,9 +57,7 @@ export default class Parse<T> {
             boolean: <F extends Validate<boolean, any>>(fn: F) =>
                 new Parse<ReturnType<F>>('hash', 'boolean', fn),
             JSON: <F extends ValidateUnknown<any>>(fn: F) =>
-                new Parse<ReturnType<F>>('hash', 'JSON', fn),
-            URLON: <F extends ValidateUnknown<any>>(fn: F) =>
-                new Parse<ReturnType<F>>('hash', 'URLON', fn)
+                new Parse<ReturnType<F>>('hash', 'JSON', fn)
         };
     }
 
