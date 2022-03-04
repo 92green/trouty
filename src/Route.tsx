@@ -39,18 +39,23 @@ function createRouteObject<T>(
         _type: null,
         _actionCreator: (history: History): RouteMethods<T> => {
             const match = matchPath<T>(history.location.pathname, {path: config.path, exact: true});
+            const args = match
+                ? getArgs<T>(config, {location: history.location, params: match.params})
+                : null;
+            const {location} = history;
+            const wrapArgs = (argFn: T | ((next: T | null) => T)) => {
+                return argFn instanceof Function ? argFn(args) : argFn;
+            };
             return {
-                to: (args: T) => go(args)[1],
-                href: (args: T) => go(args)[0],
-                push: (args: T) => {
-                    safeTransition(history.location, go(args)[1], history.push);
+                to: (args) => go(wrapArgs(args))[1],
+                href: (args) => go(wrapArgs(args))[0],
+                push: (args) => {
+                    safeTransition(location, go(wrapArgs(args))[1], history.push);
                 },
-                replace: (args: T) => {
-                    safeTransition(history.location, go(args)[1], history.replace);
+                replace: (args) => {
+                    safeTransition(location, go(wrapArgs(args))[1], history.replace);
                 },
-                args: match
-                    ? getArgs<T>(config, {location: history.location, params: match.params})
-                    : null
+                args
             };
         }
     };

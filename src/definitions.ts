@@ -11,10 +11,10 @@ export type RouteObject<T> = {
 };
 
 export type RouteMethods<T> = {
-    to: (args: T) => LocationDescriptorObject;
-    href: (args: T) => string;
-    push: (args: T) => void;
-    replace: (args: T) => void;
+    to: (args: T | ((next: T | null) => T)) => LocationDescriptorObject;
+    href: (args: T | ((next: T | null) => T)) => string;
+    push: (args: T | ((next: T | null) => T)) => void;
+    replace: (args: T | ((next: T | null) => T)) => void;
     args: T | null;
 };
 export type EmptyRouteMethods = {

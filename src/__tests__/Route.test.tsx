@@ -19,6 +19,11 @@ const foo = Route<{id: string; search?: string}>({
                 <div title="search">{props.args.search}</div>
                 <div title="to">{JSON.stringify(routes.bar.to({id: '456', search: 'purple'}))}</div>
                 <div title="href">{routes.bar.href({id: '456', search: 'purple'})}</div>
+                <div title="hrefCallback">
+                    {routes.foo.href((args) => {
+                        return {...args, id: '876'};
+                    })}
+                </div>
                 <a title="push" onClick={() => routes.bar.push({id: 'a', search: 'b'})} />
                 <a title="replace" onClick={() => routes.bar.replace({id: 'a', search: 'b'})} />
             </div>
@@ -112,12 +117,13 @@ describe('args', () => {
 });
 
 describe('navigation', () => {
-    it('returns the next route from to and href', () => {
+    it.only('returns the next route from to and href', () => {
         renderRoute('/foo/123?search=orange');
         expect(screen.getByTitle('to').textContent).toBe(
             '{"pathname":"/bar/456","hash":"","search":"?search=purple","state":{}}'
         );
         expect(screen.getByTitle('href').textContent).toBe('/bar/456?search=purple');
+        expect(screen.getByTitle('hrefCallback').textContent).toBe('/foo/876?search=orange');
     });
     it('will push state', () => {
         const history = createMemoryHistory({initialEntries: ['/foo/123']});
