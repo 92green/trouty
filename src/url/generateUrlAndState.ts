@@ -1,5 +1,5 @@
 import {RouteConfig} from '../definitions';
-import {generatePath} from 'react-router-dom';
+import generatePath from './generatePath';
 import {createPath, LocationDescriptorObject} from 'history';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {

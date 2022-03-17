@@ -8,6 +8,7 @@ export type RouteObject<T> = {
     _type: T;
     _actionCreator: (history: History) => RouteMethods<T> | EmptyRouteMethods;
     route: React.ReactNode;
+    argList: Array<keyof T>;
 };
 
 export type RouteMethods<T> = {
@@ -15,7 +16,15 @@ export type RouteMethods<T> = {
     href: (args: T | ((next: T | null) => T)) => string;
     push: (args: T | ((next: T | null) => T)) => void;
     replace: (args: T | ((next: T | null) => T)) => void;
-    args: T | null;
+    args: {
+        [K in keyof T]: {
+            useValue: () => T[K];
+            to: (args: T[K]) => LocationDescriptorObject;
+            href: (args: T[K]) => string;
+            push: (args: T[K]) => void;
+            replace: (args: T[K]) => void;
+        };
+    };
 };
 export type EmptyRouteMethods = {
     to: () => string;
