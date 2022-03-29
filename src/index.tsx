@@ -14,13 +14,12 @@
                                                    \______/ 
 */
 
-export {Route, LazyRoute, BoringRoute} from './Route';
+export {default as Route} from './Route';
 export {default as createRouterContext} from './RouterContext';
 export {default as Parse} from './Parse';
 
 /*
 @todo
 - dont update on same state
-- replace react-router functions with own
 - Complain about multiple hash parsers
 */

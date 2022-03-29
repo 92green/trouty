@@ -39,12 +39,25 @@ const {routes, RoutesProvider, useRoutes} = createRouterContext({
                 </div>
             );
         }
+    }),
+    home: Route({
+        path: '/',
+        parse: {},
+        component: () => {
+            return (
+                <div style={{padding: '2rem'}}>
+                    <Nav />
+                    Home
+                </div>
+            );
+        }
     })
 });
 
 function Section({param, route}: {route: string; param: 'name' | 'pet'}) {
     const routes = useRoutes();
     const value = routes[route].args[param].useValue();
+    routes.pet.useValue();
 
     return (
         <fieldset style={{backgroundColor: color(), marginBottom: '2rem', padding: '1rem'}}>
@@ -73,11 +86,13 @@ const Nav = React.memo(function () {
     const value = routes.person.useValue();
     return (
         <div>
-            <a {...routes.person.to({name: 'foo', pet: 'bar'})}>Person</a>
+            <a {...routes.home.link({})}>Home</a>
             <span> | </span>
-            <a {...routes.person.to({...value, name: 'test'})}>partial person</a>
+            <a {...routes.person.link({name: 'foo', pet: 'bar'})}>Person</a>
             <span> | </span>
-            <a {...routes.pet.to({name: 'sparky'})}>Pet</a>
+            <a {...routes.person.link({...value, name: 'test'})}>partial person</a>
+            <span> | </span>
+            <a {...routes.pet.link({name: 'sparky'})}>Pet</a>
             <span> | </span>
         </div>
     );
@@ -88,6 +103,7 @@ const App = () => {
         <RoutesProvider>
             {routes.person}
             {routes.pet}
+            {routes.home}
         </RoutesProvider>
     );
 };

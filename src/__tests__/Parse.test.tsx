@@ -2,7 +2,7 @@ import React from 'react';
 import {render, screen} from '@testing-library/react';
 import '@testing-library/jest-dom';
 import {Router, Switch, Route, createRouterContext, Parse} from '../index';
-import {RouteConfig} from '../definitions';
+import {RouteConfig} from '../Route';
 import {createMemoryHistory} from 'history';
 
 function renderRoute<T>(config: {

@@ -1,9 +1,8 @@
-import {RouteConfig} from '../definitions';
-import generatePath from './generatePath';
-import {createPath, LocationDescriptorObject} from 'history';
+import {RouteConfig} from '../Route';
+import {createPath, Location} from 'history';
 
 export default function generateUrlAndState<T extends Record<string, any>>(config: RouteConfig<T>) {
-    return (args: T): [string, LocationDescriptorObject] => {
+    return (args: T): [string, Location] => {
         const queryData: Partial<Record<keyof T, string>> = {};
         const paramData: Partial<Record<keyof T, string>> = {};
         const state: Partial<T> = {};
@@ -50,8 +49,9 @@ export default function generateUrlAndState<T extends Record<string, any>>(confi
         }
 
         const searchValue = new URLSearchParams(queryData as Record<string, string>).toString();
-        const nextLocation: LocationDescriptorObject = {
-            pathname: generatePath(config.path, paramData),
+        const nextLocation: Location = {
+            key: '1',
+            pathname: config.path.replace(/:(\w+)/g, (_, key) => paramData[key] || ''),
             hash: hashValue ? `#${hashValue}` : '',
             search: searchValue ? `?${searchValue}` : '',
             state
