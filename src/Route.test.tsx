@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react';
 import {render, screen, waitFor, fireEvent} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {Router, Switch, Route, createRouterContext, Parse, LazyRoute, BoringRoute} from '../index';
+import {Route, createRouterContext, Parse} from './index';
 import {createMemoryHistory, History} from 'history';
 
 const foo = Route<{id: string; search?: string}>({
@@ -10,22 +10,19 @@ const foo = Route<{id: string; search?: string}>({
         id: Parse.param.string((x) => x || ''),
         search: Parse.query.string((x) => x)
     },
-    component: function Foo(props) {
-        const routes = useRoutes();
+    component: function Foo() {
+        const {foo, bar} = useRoutes();
+        const id = foo.args.id.useValue();
+        const search = foo.args.search?.useValue();
         return (
             <div>
                 <div title="name">Foo Route</div>
-                <div title="id">{props.args.id}</div>
-                <div title="search">{props.args.search}</div>
-                <div title="to">{JSON.stringify(routes.bar.to({id: '456', search: 'purple'}))}</div>
-                <div title="href">{routes.bar.href({id: '456', search: 'purple'})}</div>
-                <div title="hrefCallback">
-                    {routes.foo.href((args) => {
-                        return {...args, id: '876'};
-                    })}
-                </div>
-                <a title="push" onClick={() => routes.bar.push({id: 'a', search: 'b'})} />
-                <a title="replace" onClick={() => routes.bar.replace({id: 'a', search: 'b'})} />
+                <div title="id">{id}</div>
+                <div title="search">{search}</div>
+                <div title="link">{JSON.stringify(bar.link({id: '456', search: 'purple'}))}</div>
+                <div title="href">{bar.link({id: '456', search: 'purple'}).href}</div>
+                <a title="push" onClick={() => bar.push({id: 'a', search: 'b'})} />
+                <a title="replace" onClick={() => bar.replace({id: 'a', search: 'b'})} />
             </div>
         );
     }
@@ -42,67 +39,56 @@ const bar = Route<{id: string; search?: string}>({
     }
 });
 
-const lazy = LazyRoute<{id: string}>({
+const lazy = Route<{id: string}>({
     path: '/lazy/:id',
     parse: {
         id: Parse.param.string((x) => x || '')
     },
     component: React.lazy(async () => ({
-        default: (props) => <div>lazy:{props.args.id}</div>
+        default: () => {
+            const args = useRoutes().lazy.useValue();
+            return <div>lazy:{args.id}</div>;
+        }
     }))
 });
 
-const boring = BoringRoute({
+const boring = Route({
     path: '/boring',
+    parse: {},
     component: () => {
         const routes = useRoutes();
         return (
             <div>
                 <div title="name">boring</div>
-                <div title="to">{routes.boring.to()}</div>
-                <div title="href">{routes.boring.href()}</div>
-                <a title="push" onClick={() => routes.boringLazy.push()} />
-                <a title="replace" onClick={() => routes.boringLazy.replace()} />
+                <div title="href">{routes.boring.link({}).href}</div>
+                <a title="push" onClick={() => routes.bar.push({id: '1'})} />
             </div>
         );
     }
 });
 
-const boringLazy = BoringRoute({
-    path: '/boringLazy',
-    component: React.lazy(async () => ({
-        default: () => <div>boringLazy</div>
-    }))
-});
-
-const {RoutesProvider, useRoutes} = createRouterContext({
+const {RoutesProvider, useRoutes, routes} = createRouterContext({
     foo,
     bar,
     lazy,
-    boring,
-    boringLazy
+    boring
 });
 
 function renderRoute(pathOrHistory: string | History) {
     return render(
         <Suspense fallback={null}>
-            <Router
+            <RoutesProvider
                 history={
                     typeof pathOrHistory === 'string'
                         ? createMemoryHistory({initialEntries: [pathOrHistory]})
                         : pathOrHistory
                 }
             >
-                <RoutesProvider>
-                    <Switch>
-                        {foo.route}
-                        {bar.route}
-                        {lazy.route}
-                        {boring.route}
-                        {boringLazy.route}
-                    </Switch>
-                </RoutesProvider>
-            </Router>
+                {routes.foo}
+                {routes.bar}
+                {routes.lazy}
+                {routes.boring}
+            </RoutesProvider>
         </Suspense>
     );
 }
@@ -117,13 +103,10 @@ describe('args', () => {
 });
 
 describe('navigation', () => {
-    it.only('returns the next route from to and href', () => {
+    it('returns the next route from to and href', () => {
         renderRoute('/foo/123?search=orange');
-        expect(screen.getByTitle('to').textContent).toBe(
-            '{"pathname":"/bar/456","hash":"","search":"?search=purple","state":{}}'
-        );
+        expect(screen.getByTitle('link').textContent).toBe('{"href":"/bar/456?search=purple"}');
         expect(screen.getByTitle('href').textContent).toBe('/bar/456?search=purple');
-        expect(screen.getByTitle('hrefCallback').textContent).toBe('/foo/876?search=orange');
     });
     it('will push state', () => {
         const history = createMemoryHistory({initialEntries: ['/foo/123']});
@@ -153,21 +136,13 @@ describe('special route types', () => {
         renderRoute('/boring');
         expect(screen.getByText('boring')).toBeInTheDocument();
     });
-    it('will render boring lazy routes', async () => {
-        renderRoute('/boringLazy');
-        await waitFor(() => expect(screen.getByText('boringLazy')).toBeInTheDocument());
-    });
     it('boring routes can transition', () => {
         const history = createMemoryHistory({initialEntries: ['/boring']});
         renderRoute(history);
         expect(screen.getByText('boring')).toBeInTheDocument();
-        expect(screen.getByTitle('to').textContent).toBe('/boring');
         expect(screen.getByTitle('href').textContent).toBe('/boring');
         fireEvent.click(screen.getByTitle('push'));
-        expect(history.location.pathname).toBe('/boringLazy');
-        history.replace('/boring');
-        fireEvent.click(screen.getByTitle('replace'));
-        expect(history.location.pathname).toBe('/boringLazy');
+        expect(history.location.pathname).toBe('/bar/1');
     });
 });
 

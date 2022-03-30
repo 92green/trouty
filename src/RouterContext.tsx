@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useState} from 'react';
-import {createBrowserHistory} from 'history';
+import {createBrowserHistory, History} from 'history';
 import TroutyState from './State';
 import {RouteConfig} from './Route';
 
@@ -11,10 +11,11 @@ Once your routes are defined you can bring them together in a route context. Thi
 */
 export default function createRouterContext<R extends RouterConfig>(routes: R) {
     const RoutesContext = createContext<TroutyState<R> | undefined>(undefined);
-    const history = createBrowserHistory();
 
-    function RoutesProvider(props: {children: any}) {
-        const [state] = useState(() => new TroutyState(history, routes));
+    function RoutesProvider(props: {children: any; history?: History}) {
+        const [state] = useState(
+            () => new TroutyState(props.history || createBrowserHistory(), routes)
+        );
         return <RoutesContext.Provider value={state}>{props.children}</RoutesContext.Provider>;
     }
 

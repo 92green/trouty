@@ -22,4 +22,5 @@ export {default as Parse} from './Parse';
 @todo
 - dont update on same state
 - Complain about multiple hash parsers
+- Make route a component not an element.
 */
