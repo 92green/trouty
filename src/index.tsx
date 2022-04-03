@@ -20,7 +20,9 @@ export {default as Parse} from './Parse';
 
 /*
 @todo
+- In and Out types
+- Make route a component not an element.
+- check state still works
 - dont update on same state
 - Complain about multiple hash parsers
-- Make route a component not an element.
 */

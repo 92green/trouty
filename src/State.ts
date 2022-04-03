@@ -83,7 +83,7 @@ export default class TroutyState<Config extends RouterConfig> {
     }
 
     next(next: any, arg?: string) {
-        // @todo - figure out how to handle partial updates
+        // @todo - figure out how to handle partial updates / cb functions
         //const previous = arg ? this.state[route][arg] : this.state[route];
         //const next = update instanceof Function ? update(previous) : update;
         return arg ? {[arg]: next} : next;
@@ -96,9 +96,10 @@ export default class TroutyState<Config extends RouterConfig> {
         };
     }
 
-    // @todo - clean this up
+    // @todo - find out how push/replace is best handled
+    // @todo - find out if target/modifier keys need to be handled
     makeStaticUpdater(routeKey: string, argKey?: string) {
-        return (update: any, method: 'push' | 'replace' = 'push') => {
+        return (update: any) => {
             const next = this.next(update, argKey);
             const [href] = generateUrlAndState(this.config[routeKey])(next);
             return {
@@ -114,7 +115,7 @@ export default class TroutyState<Config extends RouterConfig> {
                         // a push, so do the same here.
                         //let replace = !!replaceProp || createPath(location) === createPath(path);
                         //navigate(to, {replace, state});
-                        this.transition(routeKey, next, method);
+                        this.transition(routeKey, next, 'push');
                     }
                 }
             };
@@ -133,9 +134,7 @@ export default class TroutyState<Config extends RouterConfig> {
         this.state[route] = {...this.state[route], ...nextState};
         this.publish(route, '*', this.state[route]);
         const next = generateUrlAndState(this.config[route])(this.state[route]);
-        const payload = next[1];
-        this.history[method](payload);
-        return next[0];
+        this.history[method](next[1]);
     }
 
     //
