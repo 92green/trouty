@@ -7,13 +7,13 @@ function color() {
 }
 
 const {routes, RoutesProvider, useRoutes} = createRouterContext({
-    person: Route<{name: string; pet: string}>({
+    person: Route<{name: string; pet: string}, {name?: string; pet?: string}>({
         path: '/person',
         parse: {
             name: Parse.query.string((x) => x || ''),
             pet: Parse.query.string((x) => x || '')
         },
-        component: () => {
+        component: (props: {id: string}) => {
             return (
                 <div style={{padding: '2rem'}}>
                     <Nav />
@@ -98,12 +98,13 @@ const Nav = React.memo(function () {
     );
 });
 
+const {person: Person, pet: Pet, home: Home} = routes;
 const App = () => {
     return (
         <RoutesProvider>
-            {routes.person}
-            {routes.pet}
-            {routes.home}
+            <Person />
+            <Pet />
+            <Home />
         </RoutesProvider>
     );
 };

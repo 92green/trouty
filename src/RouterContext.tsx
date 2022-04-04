@@ -9,17 +9,17 @@ Once your routes are defined you can bring them together in a route context. Thi
 
 @returns `RoutesProvider`, a `useRoutes` access hook for your components, and a `routes` object of components for you to render in a `<Switch />`.
 */
-export default function createRouterContext<R extends RouterConfig>(routes: R) {
-    const RoutesContext = createContext<TroutyState<R> | undefined>(undefined);
+export default function createRouterContext<T extends RouterConfig>(config: T) {
+    const RoutesContext = createContext<TroutyState<T> | undefined>(undefined);
 
     function RoutesProvider(props: {children: any; history?: History}) {
         const [state] = useState(
-            () => new TroutyState(props.history || createBrowserHistory(), routes)
+            () => new TroutyState(props.history || createBrowserHistory(), config)
         );
         return <RoutesContext.Provider value={state}>{props.children}</RoutesContext.Provider>;
     }
 
-    function useRouterState(): TroutyState<R> {
+    function useRouterState(): TroutyState<T> {
         const state = useContext(RoutesContext);
         if (!state) throw new Error('RouterContext used before it exists');
         return state;
@@ -37,16 +37,21 @@ export default function createRouterContext<R extends RouterConfig>(routes: R) {
     }
 
     // Create routes object
-    let routeComponents = {} as unknown as Record<keyof R, React.ReactNode>;
-    let key: keyof R;
-    for (key in routes) {
-        const Component = routes[key].component;
-        routeComponents[key] = (
+    let routeComponents = {} as unknown as {[K in keyof T]: T[K]['component']};
+    let routes = {} as unknown as Record<keyof T, React.ReactElement<any>>;
+    for (const key in config) {
+        const Component = config[key].component;
+        routeComponents[key] = (props: any) => (
+            <Route route={key}>
+                <Component {...props} />
+            </Route>
+        );
+        routes[key] = (
             <Route route={key}>
                 <Component />
             </Route>
         );
     }
 
-    return {useRoutes, RoutesProvider, routes: routeComponents};
+    return {useRoutes, RoutesProvider, routes, routeComponents};
 }
