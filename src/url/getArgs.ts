@@ -1,9 +1,9 @@
-import {RouteConfig} from '../definitions';
+import {RouteConfig} from '../Route';
 import {Location} from 'history';
 
 export default function getArgs<T extends Record<string, any>>(
     config: RouteConfig<T>,
-    data: {params: T; location: Location<any>}
+    data: {params: T; location: Location}
 ): T {
     const {parse} = config;
     let args = {} as unknown as T;
@@ -30,7 +30,7 @@ export default function getArgs<T extends Record<string, any>>(
                 break;
 
             case 'state':
-                value = data.location.state?.[key];
+                value = (data.location.state as any)?.[key];
                 break;
         }
 

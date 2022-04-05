@@ -1,5 +1,5 @@
 import React from 'react';
-import {Route, Parse} from '../../index';
+import {Route, Parse} from '../index';
 import {useRoutes} from './Router';
 
 export default Route<{search?: string}>({

@@ -1,4 +1,4 @@
-import {createRouterContext} from '../../index';
+import {createRouterContext} from '../index';
 import foo from './Foo';
 import bar from './Bar';
 

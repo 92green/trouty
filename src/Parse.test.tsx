@@ -1,29 +1,26 @@
 import React from 'react';
 import {render, screen} from '@testing-library/react';
 import '@testing-library/jest-dom';
-import {Router, Switch, Route, createRouterContext, Parse} from '../index';
-import {RouteConfig} from '../definitions';
+import {Route, createRouterContext, Parse} from './index';
+import {RouteConfig} from './Route';
 import {createMemoryHistory} from 'history';
 
 function renderRoute<T>(config: {
     initialPath: string;
-    routeConfig: Omit<RouteConfig<T>, 'component'>;
+    routeConfig: Omit<RouteConfig<T>, 'component' | '__type'>;
     transitionObject?: T;
 }) {
     const {initialPath, routeConfig, transitionObject} = config;
     const route = Route<T>({
         ...routeConfig,
-        component: (props) => {
-            const routes = useRoutes() as any;
+        component: () => {
+            const {route} = useRoutes();
+            const args = route.useValue();
+            const props = transitionObject && route.link(transitionObject);
             return (
                 <div>
-                    <div title="value">{JSON.stringify(props.args)}</div>
-                    {transitionObject && (
-                        <>
-                            <div title="to">{routes.route.href(transitionObject)}</div>
-                            <a title="link" onClick={() => routes.route.push(transitionObject)} />
-                        </>
-                    )}
+                    <div title="value">{JSON.stringify(args)}</div>
+                    {transitionObject && <a title="link" {...props} children={props?.href} />}
                 </div>
             );
         }
@@ -31,11 +28,9 @@ function renderRoute<T>(config: {
 
     const {RoutesProvider, useRoutes, routes} = createRouterContext({route});
     const result = render(
-        <Router history={createMemoryHistory({initialEntries: [initialPath]})}>
-            <RoutesProvider>
-                <Switch>{Object.values(routes)}</Switch>
-            </RoutesProvider>
-        </Router>
+        <RoutesProvider history={createMemoryHistory({initialEntries: [initialPath]})}>
+            {routes.route}
+        </RoutesProvider>
     );
     const args = JSON.parse(screen.getByTitle('value').textContent || '{}');
     return {args, result};
@@ -58,7 +53,7 @@ describe('string', () => {
         expect(args.param).toBe('a');
         expect(args.query).toBe('b');
         expect(args.hash).toBe('c');
-        expect(screen.getByTitle('to').textContent).toBe('/strings/foo?query=bar#baz');
+        expect(screen.getByTitle('link').textContent).toBe('/strings/foo?query=bar#baz');
     });
     it('will pass undefined to validator if not found', () => {
         let query: any = '';
@@ -97,7 +92,7 @@ describe('number', () => {
         expect(args.param).toBe(1);
         expect(args.query).toBe(2);
         expect(args.hash).toBe(3);
-        expect(screen.getByTitle('to').textContent).toBe('/numbers/4?query=5#6');
+        expect(screen.getByTitle('link').textContent).toBe('/numbers/4?query=5#6');
     });
 
     it('will pass undefined to validator if not found', () => {
@@ -137,7 +132,7 @@ describe('boolean', () => {
         expect(args.param).toBe(true);
         expect(args.query).toBe(false);
         expect(args.hash).toBe(true);
-        expect(screen.getByTitle('to').textContent).toBe('/booleans/false?query=true#false');
+        expect(screen.getByTitle('link').textContent).toBe('/booleans/false?query=true#false');
     });
 
     it('will pass undefined to validator if not found', () => {
@@ -177,7 +172,9 @@ describe('json', () => {
         });
         expect(args.query).toEqual(['foo']);
         expect(args.hash).toEqual(['foo']);
-        expect(screen.getByTitle('to').textContent).toBe(`/JSON?query=${encodedBar}#${encodedBar}`);
+        expect(screen.getByTitle('link').textContent).toBe(
+            `/JSON?query=${encodedBar}#${encodedBar}`
+        );
     });
 
     it('will pass undefined to validator if not found', () => {
@@ -215,7 +212,7 @@ describe('state', () => {
         });
         expect(args.a).toEqual(['blah']);
         expect(args.b).toBe('blah');
-        expect(screen.getByTitle('to').textContent).toBe(`/state`);
+        expect(screen.getByTitle('link').textContent).toBe(`/state`);
     });
 });
 
