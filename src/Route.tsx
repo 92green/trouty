@@ -42,7 +42,6 @@ function createRouteObject<T>(
             const args = match
                 ? getArgs<T>(config, {location: history.location, params: match.params})
                 : null;
-            const {location} = history;
             const wrapArgs = (argFn: T | ((next: T | null) => T)) => {
                 return argFn instanceof Function ? argFn(args) : argFn;
             };
@@ -50,10 +49,10 @@ function createRouteObject<T>(
                 to: (args) => go(wrapArgs(args))[1],
                 href: (args) => go(wrapArgs(args))[0],
                 push: (args) => {
-                    safeTransition(location, go(wrapArgs(args))[1], history.push);
+                    safeTransition(history.location, go(wrapArgs(args))[1], history.push);
                 },
                 replace: (args) => {
-                    safeTransition(location, go(wrapArgs(args))[1], history.replace);
+                    safeTransition(history.location, go(wrapArgs(args))[1], history.replace);
                 },
                 args
             };
