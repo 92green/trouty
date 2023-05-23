@@ -1,4 +1,7 @@
 module.exports = {
+    transform: {
+        '^.+\\.(t|j)sx?$': '@swc/jest'
+    },
     coverageThreshold: {
         global: {
             branches: 10.26,
