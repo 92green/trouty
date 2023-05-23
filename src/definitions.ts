@@ -15,7 +15,7 @@ export type RouteMethods<T> = {
     href: (args: T | ((next: T | null) => T)) => string;
     push: (args: T | ((next: T | null) => T)) => void;
     replace: (args: T | ((next: T | null) => T)) => void;
-    args: T | null;
+    useArgs: () => T | null;
 };
 export type EmptyRouteMethods = {
     to: () => string;

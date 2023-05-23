@@ -19,10 +19,14 @@ const foo = Route<{id: string; search?: string}>({
                 <div title="search">{props.args.search}</div>
                 <div title="to">{JSON.stringify(routes.bar.to({id: '456', search: 'purple'}))}</div>
                 <div title="href">{routes.bar.href({id: '456', search: 'purple'})}</div>
-                <div title="hrefCallback">
-                    {routes.foo.href((args) => {
-                        return {...args, id: '876'};
-                    })}
+
+                <a
+                    title="callbackChange"
+                    onClick={() => routes.foo.replace({id: '123', search: 'apple'})}
+                />
+                <div title="hrefCallback">{routes.foo.href((args) => ({...args, id: '876'}))}</div>
+                <div title="toCallback">
+                    {JSON.stringify(routes.foo.to((args) => ({...args, id: '876'})))}
                 </div>
                 <a title="push" onClick={() => routes.bar.push({id: 'a', search: 'b'})} />
                 <a title="replace" onClick={() => routes.bar.replace({id: 'a', search: 'b'})} />
@@ -117,7 +121,7 @@ describe('args', () => {
 });
 
 describe('navigation', () => {
-    it.only('returns the next route from to and href', () => {
+    it('returns the next route from to and href', () => {
         renderRoute('/foo/123?search=orange');
         expect(screen.getByTitle('to').textContent).toBe(
             '{"pathname":"/bar/456","hash":"","search":"?search=purple","state":{}}'
@@ -125,6 +129,22 @@ describe('navigation', () => {
         expect(screen.getByTitle('href').textContent).toBe('/bar/456?search=purple');
         expect(screen.getByTitle('hrefCallback').textContent).toBe('/foo/876?search=orange');
     });
+
+    it('will pass the updated args to to/href callbacks', async () => {
+        renderRoute('/foo/123?search=orange');
+        expect(screen.getByTitle('toCallback').textContent).toBe(
+            '{"pathname":"/foo/876","hash":"","search":"?search=orange","state":{}}'
+        );
+        expect(screen.getByTitle('hrefCallback').textContent).toBe('/foo/876?search=orange');
+
+        fireEvent.click(screen.getByTitle('callbackChange'));
+
+        expect(screen.getByTitle('toCallback').textContent).toBe(
+            '{"pathname":"/foo/876","hash":"","search":"?search=apple","state":{}}'
+        );
+        expect(screen.getByTitle('hrefCallback').textContent).toBe('/foo/876?search=apple');
+    });
+
     it('will push state', () => {
         const history = createMemoryHistory({initialEntries: ['/foo/123']});
         renderRoute(history);
@@ -183,3 +203,5 @@ describe('errors', () => {
         expect(() => render(<BadComponent />)).toThrowError('RouterContext used before it exists');
     });
 });
+
+it('will pass the updated state to route callbacks', () => {});

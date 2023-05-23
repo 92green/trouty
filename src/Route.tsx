@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Route as ReactRouterRoute, useLocation, useParams, matchPath} from 'react-router-dom';
 import generateUrlAndState from './url/generateUrlAndState';
 import {
@@ -9,7 +9,7 @@ import {
     RouteMethods,
     EmptyRouteMethods
 } from './definitions';
-import getArgs from './url/getArgs';
+import getArgsFromLocation from './url/getArgs';
 import compareLocations from './url/compareLocations';
 import {History, LocationDescriptorObject} from 'history';
 
@@ -39,22 +39,34 @@ function createRouteObject<T>(
         _type: null,
         _actionCreator: (history: History): RouteMethods<T> => {
             const match = matchPath<T>(history.location.pathname, {path: config.path, exact: true});
-            const args = match
-                ? getArgs<T>(config, {location: history.location, params: match.params})
-                : null;
-            const wrapArgs = (argFn: T | ((next: T | null) => T)) => {
-                return argFn instanceof Function ? argFn(args) : argFn;
+            function getArgs() {
+                return match
+                    ? getArgsFromLocation<T>(config, {
+                          location: history.location,
+                          params: match.params
+                      })
+                    : null;
+            }
+
+            const wrapArgs = (argsOrFunction: T | ((next: T | null) => T)) => {
+                if (argsOrFunction instanceof Function) {
+                    return argsOrFunction(getArgs());
+                }
+                return argsOrFunction;
             };
             return {
-                to: (args) => go(wrapArgs(args))[1],
-                href: (args) => go(wrapArgs(args))[0],
-                push: (args) => {
-                    safeTransition(history.location, go(wrapArgs(args))[1], history.push);
+                to: (next) => go(wrapArgs(next))[1],
+                href: (next) => go(wrapArgs(next))[0],
+                push: (next) => {
+                    safeTransition(history.location, go(wrapArgs(next))[1], history.push);
                 },
-                replace: (args) => {
-                    safeTransition(history.location, go(wrapArgs(args))[1], history.replace);
+                replace: (next) => {
+                    safeTransition(history.location, go(wrapArgs(next))[1], history.replace);
                 },
-                args
+                useArgs: () => {
+                    const args = useMemo(() => getArgs(), [history.location.key]);
+                    return args;
+                }
             };
         }
     };
@@ -65,7 +77,7 @@ function createRouteComponent<T>(config: StandardRouteConfig<T> | LazyRouteConfi
         const params = useParams<T>();
         const location = useLocation();
         const Component = config.component;
-        return <Component args={getArgs<T>(config, {params, location})} />;
+        return <Component args={getArgsFromLocation<T>(config, {params, location})} />;
     };
 }
 /**
