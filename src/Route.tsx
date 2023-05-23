@@ -38,14 +38,18 @@ function createRouteObject<T>(
         // @ts-ignore - this is a dummy type to pass around for context
         _type: null,
         _actionCreator: (history: History): RouteMethods<T> => {
-            const match = matchPath<T>(history.location.pathname, {path: config.path, exact: true});
             function getArgs() {
-                return match
-                    ? getArgsFromLocation<T>(config, {
-                          location: history.location,
-                          params: match.params
-                      })
-                    : null;
+                const match = matchPath<T>(history.location.pathname, {
+                    path: config.path,
+                    exact: true
+                });
+
+                if (!match) return null;
+
+                return getArgsFromLocation<T>(config, {
+                    location: history.location,
+                    params: match.params
+                });
             }
 
             const wrapArgs = (argsOrFunction: T | ((next: T | null) => T)) => {
